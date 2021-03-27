@@ -221,7 +221,7 @@ class App extends React.Component {
       <header className="App-header">
         <h1>Personal Palette Assistant</h1>
       </header>
-      <body>
+      <div>
         <DragDropContext
           onDragEnd = {this.onDragEnd}>
           <div className="ButtonRow">
@@ -251,7 +251,7 @@ class App extends React.Component {
             )}
           </Droppable>
         </DragDropContext>
-      </body>
+      </div>
     </div>
     )
   }
