@@ -1,5 +1,8 @@
 import React from "react";
 import colorArray from "./color-file.js";
+import { DragDropContext } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
+import { Draggable } from 'react-beautiful-dnd';
 import "./App.css";
 
 // Using relative luminance https://planetcalc.com/7779/
@@ -11,6 +14,30 @@ class App extends React.Component {
   // Initialize the state with a 2d array.
   // 147 rows, each row a color name and decimal rgb values.
   state = { colors: colorArray };
+
+  // Drag and Drop Stuff
+
+  onDragEnd = result => {
+    // Update the state after the drag operation ends.
+    const { destination, source, draggableID } = result;
+    if (!destination) {
+      return;
+    }
+    if (destination.droppableId === source.droppableID &&
+        destination.index === source.index) {
+      return;
+    }
+    var newColors = this.state.colors;
+    // Remove moved color
+    var movedColor = newColors[source.index];
+    newColors.splice(source.index, 1);
+    // Put it in the new position.
+    // Todo: handle the case where we have > 1 Droppable.
+    newColors.splice(destination.index, 0, movedColor);
+    this.setState({colors: newColors});
+  }
+
+  // Sorting stuff
 
   compareLightness = (color1, color2) => {
     // From wikipedia - doesn't really do it for me.
@@ -37,7 +64,7 @@ class App extends React.Component {
       var r = color[1];
       var g = color[2];
       var b = color[3];
-      if (r == g && r == b) {
+      if (r === g && r === b) {
         grays.push(color);
       }
       else if (r >= g && r > b) {
@@ -68,7 +95,7 @@ class App extends React.Component {
       var r = color[1];
       var g = color[2];
       var b = color[3];
-      if (r == g && r == b) {
+      if (r === g && r === b) {
         grays.push(color);
       }
       else if (r < g && r <= b) {
@@ -104,7 +131,7 @@ class App extends React.Component {
       var r = color[1] - darkest;
       var g = color[2] - darkest;
       var b = color[3] - darkest;
-      if (r == g && r == b) {
+      if (r === g && r === b) {
         grays.push(color);
       }
       else if (r >= 2*b && r >= 2*g) {
@@ -154,20 +181,33 @@ class App extends React.Component {
     return hexStr;
   }
 
-  colorAsChip = (color) => {
+  colorAsChip = (color, colorIndex) => {
     // var rgbString = "rgb(" + color[1] + ", " + color[2] + ", " + color[3] + ")";
     var hexString = this.getHex(color);
     var textColor = 'black';
     if (rWeight*color[1] + gWeight*color[2] + bWeight*color[3] < 100) textColor = 'white';
-    return (
-      <div
-        className="ColorChip"
-        style={{ backgroundColor: color[0], color: textColor }}
+    return(
+      <Draggable
+        draggableId={color[0]}
+        index={colorIndex}
       >
-        <p>{color[0]}</p>
-        <p>{hexString}</p>
-      </div>
-    );
+        {provided => (
+          <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
+            <div  /* This div has to be nested because draggableProps overwrites style. */
+              className="ColorChip"
+              style={{ backgroundColor: color[0], color: textColor }}
+            >
+              <p>{color[0]}</p>
+              <p>{hexString}</p>
+            </div>
+          </div>
+        )}
+      </Draggable>
+    )
   };
 
   renderColorChips = () => {
@@ -182,21 +222,35 @@ class App extends React.Component {
         <h1>Personal Palette Assistant</h1>
       </header>
       <body>
-        <div className="ButtonRow">
-          <button className="SortButton" onClick={this.sortRGB}>
-            Sort RGB
-          </button>
-          <button className="SortButton" onClick={this.sortCMYK}>
-            Sort CMYK
-          </button>
-          <button className="SortButton" onClick={this.sort6}>
-            Six colors
-          </button>
-          <button className="SortButton" onClick={this.sortLightToDark}>
-            Sort Light
-          </button>
-        </div>
-        <div className="RowOfChips">{this.renderColorChips()}</div>
+        <DragDropContext
+          onDragEnd = {this.onDragEnd}>
+          <div className="ButtonRow">
+            <button className="SortButton" onClick={this.sortRGB}>
+              Sort RGB
+            </button>
+            <button className="SortButton" onClick={this.sortCMYK}>
+              Sort CMYK
+            </button>
+            <button className="SortButton" onClick={this.sort6}>
+              Six colors
+            </button>
+            <button className="SortButton" onClick={this.sortLightToDark}>
+              Sort Light
+            </button>
+          </div>
+          <Droppable droppableId="MainSection">
+            {provided => (
+              <div
+                className="RowOfChips"
+                ref = {provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {this.renderColorChips()}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </body>
     </div>
     )
