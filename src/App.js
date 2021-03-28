@@ -156,10 +156,10 @@ class App extends React.Component {
       ...this.state,
       palettes: {
         ...this.state.palettes,
-        ['gray']: grayPalette,
-        ['red']: redPalette,
-        ['green']: greenPalette,
-        ['blue']: bluePalette,
+        [grayPalette.id]: grayPalette,
+        [redPalette.id]: redPalette,
+        [greenPalette.id]: greenPalette,
+        [bluePalette.id]: bluePalette,
       },
       paletteOrder: newPaletteOrder,
     };
@@ -223,10 +223,10 @@ class App extends React.Component {
       ...this.state,
       palettes: {
         ...this.state.palettes,
-        ['gray']: grayPalette,
-        ['cyan']: cyanPalette,
-        ['magenta']: magentaPalette,
-        ['yellow']: yellowPalette,
+        [grayPalette.id]: grayPalette,
+        [cyanPalette.id]: cyanPalette,
+        [magentaPalette.id]: magentaPalette,
+        [yellowPalette.id]: yellowPalette,
       },
       paletteOrder: newPaletteOrder,
     };
@@ -319,13 +319,13 @@ class App extends React.Component {
       ...this.state,
       palettes: {
         ...this.state.palettes,
-        ['gray']: grayPalette,
-        ['red']: redPalette,
-        ['green']: greenPalette,
-        ['blue']: bluePalette,
-        ['cyan']: cyanPalette,
-        ['magenta']: magentaPalette,
-        ['yellow']: yellowPalette,
+        [grayPalette.id]: grayPalette,
+        [redPalette.id]: redPalette,
+        [greenPalette.id]: greenPalette,
+        [bluePalette.id]: bluePalette,
+        [cyanPalette.id]: cyanPalette,
+        [magentaPalette.id]: magentaPalette,
+        [yellowPalette.id]: yellowPalette,
       },
       paletteOrder: newPaletteOrder,
     };
@@ -357,7 +357,7 @@ class App extends React.Component {
   
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
-  
+
   render() {
     return (
     <div className="App">
