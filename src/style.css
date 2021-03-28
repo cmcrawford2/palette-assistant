@@ -53,12 +53,13 @@ It's the background of the twirling atom of the logo for create-react-app.
 
 .RowOfChips {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   background-color: white;
   flex-flow: row wrap;
   padding: 5px;
   margin: 15px auto;
   width: 95%;
+  min-height: 120px;
 }
 
 .ColorChip {
