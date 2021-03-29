@@ -13,14 +13,13 @@ export default class Palette extends React.Component {
       <Droppable droppableId = {this.props.palette.id}>
         {provided => (
           <div
+            className="RowOfChips"
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
-            <div className="RowOfChips">
               {this.props.colorArray.map((color, index) => (
                 <ColorChip key={color.id} color={color} index={index} />
               ))}
-            </div>
 
             {provided.placeholder}
           </div>

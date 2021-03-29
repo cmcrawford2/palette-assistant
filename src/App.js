@@ -30,10 +30,11 @@ class App extends React.Component {
     if (source.droppableId === destination.droppableId) {
       var newColorIds = this.state.palettes[source.droppableId].colorIds;
       // Remove moved color
+      var movedColorId = newColorIds[source.index];
       newColorIds.splice(source.index, 1);
       
       // Put it in the new position.
-      newColorIds.splice(destination.index, 0, draggableID);
+      newColorIds.splice(destination.index, 0, movedColorId);
 
       // Create new state
       const newPalette = {
