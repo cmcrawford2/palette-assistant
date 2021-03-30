@@ -10,7 +10,7 @@ import './style.css';
 export default class Palette extends React.Component {
   render() {
     return (
-      <Droppable droppableId = {this.props.palette.id}>
+      <Droppable droppableId = {this.props.palette.id} direction="horizontal">
         {provided => (
           <div
             className="RowOfChips"
