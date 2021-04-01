@@ -20,7 +20,7 @@ export default class ColorChip extends React.Component {
     var g = this.props.color.color[2]
     var b = this.props.color.color[3]
     var hexString = "";
-    if (this.props.rMode != true)
+    if (this.props.rMode !== true)
       hexString = this.getHex(r, g, b);
     var textColor = 'black';
     if (0.299 * r + 0.587 * g + 0.114 * b < 100) textColor = 'white';
