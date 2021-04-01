@@ -161,10 +161,10 @@ class App extends React.Component {
           },
         };
         newState = tempState;
-        newPaletteOrder.push(p_i);
+        newPaletteOrder.push(paletteId);
       }
     }
-    newState.PaletteOrder = newPaletteOrder;
+    newState.paletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 
@@ -228,10 +228,10 @@ class App extends React.Component {
           },
         };
         newState = tempState;
-        newPaletteOrder.push(p_i);
+        newPaletteOrder.push(paletteId);
       }
     }
-    newState.PaletteOrder = newPaletteOrder;
+    newState.paletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 
@@ -315,10 +315,10 @@ class App extends React.Component {
           },
         };
         newState = tempState;
-        newPaletteOrder.push(p_i);
+        newPaletteOrder.push(paletteId);
       }
     }
-    newState.PaletteOrder = newPaletteOrder;
+    newState.paletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 

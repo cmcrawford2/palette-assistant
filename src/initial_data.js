@@ -251,32 +251,32 @@ const initialData = {
     'p16': { // these may be fllled for sort by color.
       id: 'p16',
       title: 'Row 16',
-      colorIds: [],
+      colorIds: []
     },
     'p17': {
       id: 'p17',
       title: 'Row 17',
-      colorIds: [],
+      colorIds: []
     },
     'p18': {
       id: 'p18',
       title: 'Row 18',
-      colorIds: [],
+      colorIds: []
     },
     'p19': {
       id: 'p19',
       title: 'Row 19',
-      colorIds: [],
+      colorIds: []
     },
     'p20': {
       id: 'p20',
       title: 'Row 20',
-      colorIds: [],
+      colorIds: []
     },
     'p21': {
       id: 'p21',
       title: 'Row 21',
-      colorIds: [],
+      colorIds: []
     },
   },
   // Facilitate reordering of the columns.
