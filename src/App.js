@@ -78,25 +78,27 @@ class App extends React.Component {
           [toPalette.id]: toPalette,
         },
       };
-      // Before we set the state to the new state, make all the rows have 10 chips again.
-      // Yes I know this is really rotten software design, but I'm stuck with fixed rows for now.
+      // Make all the rows of main display other than the last row have 10 chips again.
+      // This is because I'm stuck with fixed rows for now to make react-beautiful-dnd work.
       var pOrder = this.state.paletteOrder;
-      var too_long = pOrder.indexOf(destination.droppableId);
-      var too_short = pOrder.indexOf(source.droppableId);
-      if (too_long < too_short) {
-        // pop the end of all rows from too_long and prepend to next row.
-        for (var p_i = too_long; p_i < too_short; p_i++) {
+      for (var p_i = 0; p_i < pOrder.length-1; p_i++) {
+        var rowLength = newState2.palettes[pOrder[p_i]].colorIds.length;
+        if (rowLength > 10) {
+          // Put the end of this row at the beginning of the next row
           var extraId = newState2.palettes[pOrder[p_i]].colorIds.pop();
           newState2.palettes[pOrder[p_i+1]].colorIds.unshift(extraId);
         }
-      }
-      else {
-        // Remove the beginning from the next row and append to the short row
-        for (p_i = too_short; p_i < too_long; p_i++) {
+        else if (rowLength < 10) {
+          // Append the beginning of the next row to the end of row
           extraId = newState2.palettes[pOrder[p_i+1]].colorIds.shift();
           newState2.palettes[pOrder[p_i]].colorIds.push(extraId);
+          // If we emptied the last row, remove it from the display.
+          if (p_i === pOrder.length-2 &&
+              newState2.palettes[pOrder[p_i+1]].colorIds.length === 0) {
+            newState2.paletteOrder.pop();
+            }
+          }
         }
-      }
       this.setState(newState2);
     }
   }
@@ -119,6 +121,7 @@ class App extends React.Component {
     var newState = { ...this.state };
     newState.randomMode = true;
     // Use colorIds starting from 200.
+    // We do this in case we ever decided go back to HTML colors.
     for (var i = 0; i < 100; i++) {
       // Make a new color
       var r = Math.floor(256*Math.random());
@@ -129,8 +132,9 @@ class App extends React.Component {
       var colorId = "color-" + (i+201).toString();
       newState.colors[colorId].color = newColor;
     }
-    // Only show the first 10 rows.
-    // These palettes won't be used once the sort buttons are pushed. But for now they are useful.
+    // Only show the first 10 rows (palettes).
+    // These palettes won't be used once the sort buttons are pushed.
+    // But for now it saves us from having to refill p1 through p10.
     const newPaletteOrder = ['p201', 'p202', 'p203', 'p204', 'p205', 'p206', 'p207', 'p208', 'p209', 'p210'];
     newState.paletteOrder = newPaletteOrder;
     this.setState(newState);
@@ -189,40 +193,11 @@ class App extends React.Component {
     greens.sort(this.compareWeighted);
     blues.sort(this.compareWeighted);
 
-    // Cannot update actual state in a loop because setState is asynchronous.
-    var newState = { ...this.state };
-    var newPaletteOrder = [];
+    // We won't separate the lists into sections on the display.
+    // Order is r, g, b, k.
+    var sortedIds = reds.concat(greens, blues, grays);
 
-    var p_i = 1;
-    for (i = 0; i < 4; i++) {
-      var curA = [];
-      if (i === 0) { curA = reds; }
-      else if (i === 1) { curA = greens; }
-      else if (i === 2) { curA = blues; }
-      else { curA = grays; }
-
-      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
-      
-      for (var j = 0; j < n_p; j++, p_i++) {
-        var colorSection = curA.slice(10 * j, 10 * (j + 1));
-        var paletteId = "p" + p_i.toString();
-        var newPalette = {
-          ...this.state.palettes[paletteId],
-          colorIds: colorSection,
-        };
-        var tempState = {
-          ...newState,
-          palettes: {
-            ...newState.palettes,
-            [newPalette.id]: newPalette,
-          },
-        };
-        newState = tempState;
-        newPaletteOrder.push(paletteId);
-      }
-    }
-    newState.paletteOrder = newPaletteOrder;
-    this.setState(newState);
+    this.refillRows(sortedIds);
   }
 
   sortCMYK = () => {
@@ -259,40 +234,11 @@ class App extends React.Component {
     magentas.sort(this.compareWeighted);
     yellows.sort(this.compareWeighted);
 
-    // Cannot update actual state in a loop because setState is asynchronous.
-    var newState = { ...this.state };
-    var newPaletteOrder = [];
+    // Order of the new display is cyan, magenta, yellow, gray.
 
-    var p_i = 1;
-    for (i = 0; i < 4; i++) {
-      var curA = [];
-      if (i === 0) { curA = cyans; }
-      else if (i === 1) { curA = magentas; }
-      else if (i === 2) { curA = yellows; }
-      else { curA = grays; }
+    var sortedIds = cyans.concat(magentas, yellows, grays);
 
-      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
-
-      for (var j = 0; j < n_p; j++, p_i++) {
-        var colorSection = curA.slice(10 * j, 10 * (j + 1));
-        var paletteId = "p" + p_i.toString();
-        var newPalette = {
-          ...this.state.palettes[paletteId],
-          colorIds: colorSection,
-        };
-        var tempState = {
-          ...newState,
-          palettes: {
-            ...newState.palettes,
-            [newPalette.id]: newPalette,
-          },
-        };
-        newState = tempState;
-        newPaletteOrder.push(paletteId);
-      }
-    }
-    newState.paletteOrder = newPaletteOrder;
-    this.setState(newState);
+    this.refillRows(sortedIds);
   }
 
   sort6 = () => {
@@ -346,43 +292,10 @@ class App extends React.Component {
     yellows.sort(this.compareWeighted);
     grays.sort(this.compareWeighted);
 
-    // Cannot update actual state in a loop because setState is asynchronous.
-    var newState = { ...this.state };
-    var newPaletteOrder = [];
+    // Order of the new display is R Y G C B M K
+    var sortedIds = reds.concat(yellows, greens, cyans, blues, magentas, grays);
 
-    var p_i = 1;
-    for (i = 0; i < 7; i++) {
-      var curA = [];
-      if (i === 0) { curA = reds; }
-      else if (i === 1) { curA = yellows; }
-      else if (i === 2) { curA = greens; }
-      else if (i === 3) { curA = cyans; }
-      else if (i === 4) { curA = blues; }
-      else if (i === 5) { curA = magentas; }
-      else { curA = grays; }
-
-      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
-
-      for (var j = 0; j < n_p; j++, p_i++) {
-        var colorSection = curA.slice(10 * j, 10 * (j + 1));
-        var paletteId = "p" + p_i.toString();
-        var newPalette = {
-          ...this.state.palettes[paletteId],
-          colorIds: colorSection,
-        };
-        var tempState = {
-          ...newState,
-          palettes: {
-            ...newState.palettes,
-            [newPalette.id]: newPalette,
-          },
-        };
-        newState = tempState;
-        newPaletteOrder.push(paletteId);
-      }
-    }
-    newState.paletteOrder = newPaletteOrder;
-    this.setState(newState);
+    this.refillRows(sortedIds);
   }
 
   sortLightToDark = () => {
@@ -392,19 +305,18 @@ class App extends React.Component {
     else
       colorCopy = this.state.palettes["random"].colorIds;
     colorCopy.sort(this.compareWeighted);
-    // we might want to update ids in main array to reflect new order, but not now.
-    // Update ids in the 15 rows.
-    // For now we have 15 rows, hard coded.
-    // Todo: dynamic based on screen width.
-    // Update internal state and then setState at the very end.
-    // Otherwise it won't work because this.state isn't actually updated until later.
-    var newState = {...this.state};
+    this.refillRows(colorCopy);
+  }
+  
+  refillRows = (newColorIds) => {
+    // Cannot update actual state in a loop because setState is asynchronous.
+    var newState = { ...this.state };
     var newPaletteOrder = [];
-    var n_rows = 15;  
-    if (this.state.randomMode === true) n_rows = 10;
 
-    for (var i = 0; i < n_rows; i++) {
-      var colorSection = colorCopy.slice(10*i, 10*(i+1)); // last row is short but slice does what we need.
+    var n_p = Math.ceil(0.1 * newColorIds.length); // Number of rows, 10 color chips each plus remainder row.
+
+    for (var i = 0; i < n_p; i++) {
+      var colorSection = newColorIds.slice(10 * i, 10 * (i + 1));
       var paletteId = "p" + (i+1).toString();
       var newPalette = {
         ...this.state.palettes[paletteId],
@@ -418,14 +330,12 @@ class App extends React.Component {
         },
       };
       newState = tempState;
-      newPaletteOrder.push(newPalette.id);
+      newPaletteOrder.push(paletteId);
     }
-    
     newState.paletteOrder = newPaletteOrder;
-
     this.setState(newState);
   }
-  
+
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
 
