@@ -132,39 +132,39 @@ class App extends React.Component {
     greens.sort(this.compareWeighted);
     blues.sort(this.compareWeighted);
 
-    const grayPalette = {
-      ...this.state.palettes['gray'],
-      colorIds: grays,
-    }
-    const redPalette = {
-      ...this.state.palettes['red'],
-      colorIds: reds,
-    }
-    const greenPalette = {
-      ...this.state.palettes['green'],
-      colorIds: greens,
-    }
-    const bluePalette = {
-      ...this.state.palettes['blue'],
-      colorIds: blues,
-    }
+    // Cannot update actual state in a loop because setState is asynchronous.
+    var newState = { ...this.state };
+    var newPaletteOrder = [];
 
-    // Don't empty main palette Ids. Just don't display.
+    var p_i = 1;
+    for (i = 0; i < 4; i++) {
+      var curA = [];
+      if (i === 0) { curA = reds; }
+      else if (i === 1) { curA = greens; }
+      else if (i === 2) { curA = blues; }
+      else { curA = grays; }
 
-    const newPaletteOrder = ['red', 'green', 'blue', 'gray'];
-
-    const newState = {
-      ...this.state,
-      palettes: {
-        ...this.state.palettes,
-        [grayPalette.id]: grayPalette,
-        [redPalette.id]: redPalette,
-        [greenPalette.id]: greenPalette,
-        [bluePalette.id]: bluePalette,
-      },
-      paletteOrder: newPaletteOrder,
-    };
-
+      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
+      
+      for (var j = 0; j < n_p; j++, p_i++) {
+        var colorSection = curA.slice(10 * j, 10 * (j + 1));
+        var paletteId = "p" + p_i.toString();
+        var newPalette = {
+          ...this.state.palettes[paletteId],
+          colorIds: colorSection,
+        };
+        var tempState = {
+          ...newState,
+          palettes: {
+            ...newState.palettes,
+            [newPalette.id]: newPalette,
+          },
+        };
+        newState = tempState;
+        newPaletteOrder.push(p_i);
+      }
+    }
+    newState.PaletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 
@@ -199,39 +199,39 @@ class App extends React.Component {
     magentas.sort(this.compareWeighted);
     yellows.sort(this.compareWeighted);
 
-    const grayPalette = {
-      ...this.state.palettes['gray'],
-      colorIds: grays,
-    }
-    const cyanPalette = {
-      ...this.state.palettes['cyan'],
-      colorIds: cyans,
-    }
-    const magentaPalette = {
-      ...this.state.palettes['magenta'],
-      colorIds: magentas,
-    }
-    const yellowPalette = {
-      ...this.state.palettes['yellow'],
-      colorIds: yellows,
-    }
+    // Cannot update actual state in a loop because setState is asynchronous.
+    var newState = { ...this.state };
+    var newPaletteOrder = [];
 
-    // Don't empty main palette Ids. Just don't display.
+    var p_i = 1;
+    for (i = 0; i < 4; i++) {
+      var curA = [];
+      if (i === 0) { curA = cyans; }
+      else if (i === 1) { curA = magentas; }
+      else if (i === 2) { curA = yellows; }
+      else { curA = grays; }
 
-    const newPaletteOrder = ['cyan', 'magenta', 'yellow', 'gray'];
+      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
 
-    const newState = {
-      ...this.state,
-      palettes: {
-        ...this.state.palettes,
-        [grayPalette.id]: grayPalette,
-        [cyanPalette.id]: cyanPalette,
-        [magentaPalette.id]: magentaPalette,
-        [yellowPalette.id]: yellowPalette,
-      },
-      paletteOrder: newPaletteOrder,
-    };
-
+      for (var j = 0; j < n_p; j++, p_i++) {
+        var colorSection = curA.slice(10 * j, 10 * (j + 1));
+        var paletteId = "p" + p_i.toString();
+        var newPalette = {
+          ...this.state.palettes[paletteId],
+          colorIds: colorSection,
+        };
+        var tempState = {
+          ...newState,
+          palettes: {
+            ...newState.palettes,
+            [newPalette.id]: newPalette,
+          },
+        };
+        newState = tempState;
+        newPaletteOrder.push(p_i);
+      }
+    }
+    newState.PaletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 
@@ -283,76 +283,71 @@ class App extends React.Component {
     yellows.sort(this.compareWeighted);
     grays.sort(this.compareWeighted);
 
-    const grayPalette = {
-      ...this.state.palettes['gray'],
-      colorIds: grays,
-    }
-    const redPalette = {
-      ...this.state.palettes['red'],
-      colorIds: reds,
-    }
-    const greenPalette = {
-      ...this.state.palettes['green'],
-      colorIds: greens,
-    }
-    const bluePalette = {
-      ...this.state.palettes['blue'],
-      colorIds: blues,
-    }
-    const cyanPalette = {
-      ...this.state.palettes['cyan'],
-      colorIds: cyans,
-    }
-    const magentaPalette = {
-      ...this.state.palettes['magenta'],
-      colorIds: magentas,
-    }
-    const yellowPalette = {
-      ...this.state.palettes['yellow'],
-      colorIds: yellows,
-    }
+    // Cannot update actual state in a loop because setState is asynchronous.
+    var newState = { ...this.state };
+    var newPaletteOrder = [];
 
-    // Don't empty main palette Ids. Just don't display.
+    var p_i = 1;
+    for (i = 0; i < 7; i++) {
+      var curA = [];
+      if (i === 0) { curA = reds; }
+      else if (i === 1) { curA = yellows; }
+      else if (i === 2) { curA = greens; }
+      else if (i === 3) { curA = cyans; }
+      else if (i === 4) { curA = blues; }
+      else if (i === 5) { curA = magentas; }
+      else { curA = grays; }
 
-    const newPaletteOrder = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'gray'];
+      var n_p = Math.ceil(0.1 * curA.length); // Number of rows, 10 color chips each plus remainder row.
 
-    const newState = {
-      ...this.state,
-      palettes: {
-        ...this.state.palettes,
-        [grayPalette.id]: grayPalette,
-        [redPalette.id]: redPalette,
-        [greenPalette.id]: greenPalette,
-        [bluePalette.id]: bluePalette,
-        [cyanPalette.id]: cyanPalette,
-        [magentaPalette.id]: magentaPalette,
-        [yellowPalette.id]: yellowPalette,
-      },
-      paletteOrder: newPaletteOrder,
-    };
-
+      for (var j = 0; j < n_p; j++, p_i++) {
+        var colorSection = curA.slice(10 * j, 10 * (j + 1));
+        var paletteId = "p" + p_i.toString();
+        var newPalette = {
+          ...this.state.palettes[paletteId],
+          colorIds: colorSection,
+        };
+        var tempState = {
+          ...newState,
+          palettes: {
+            ...newState.palettes,
+            [newPalette.id]: newPalette,
+          },
+        };
+        newState = tempState;
+        newPaletteOrder.push(p_i);
+      }
+    }
+    newState.PaletteOrder = newPaletteOrder;
     this.setState(newState);
   }
 
   sortLightToDark = () => {
     var colorCopy = this.state.palettes['main'].colorIds;
     colorCopy.sort(this.compareWeighted);
-    const newPalette = {
-      ...this.state.palettes['main'],
-      colorIds: colorCopy,
-    };
-
-    const newPaletteOrder = ['main'];
-
-    const newState = {
-      ...this.state,
-      palettes: {
-        ...this.state.palettes,
-        [newPalette.id]: newPalette,
-      },
-      paletteOrder: newPaletteOrder,
-    };
-
+    // we might want to update ids in main array to reflect new order, but not now.
+    // Update ids in the 15 rows.
+    // For now we have 15 rows, hard coded.
+    // Todo: dynamic based on screen width.
+    // Update internal state and then setState at the very end.
+    // Otherwise it won't work because this.state isn't actually updated until later.
+    var newState = {...this.state};
+    for (var i = 0; i < 15; i++) {
+      var colorSection = colorCopy.slice(10*i, 10*(i+1)); // last row is short but slice does what we need.
+      var paletteId = "p" + (i+1).toString();
+      var newPalette = {
+        ...this.state.palettes[paletteId],
+        colorIds: colorSection,
+      };
+      var tempState = {
+        ...newState,
+        palettes: {
+          ...newState.palettes,
+          [newPalette.id]: newPalette,
+        },
+      };
+      newState = tempState;
+    }
     this.setState(newState);
   }
   

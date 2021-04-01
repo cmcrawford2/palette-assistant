@@ -1,6 +1,6 @@
 const initialData = {
   colors: {
-    'color-1': { id: 'color-1', color: ["aliceblue", 240, 248, 255]},
+    'color-1': { id: 'color-1', color: ["aliceblue", 240, 248, 255] },
     'color-2': { id: 'color-2', color: ['antiquewhite', 250, 235, 215] },
     'color-3': { id: 'color-3', color: ['aqua', 0, 255, 255] },
     'color-4': { id: 'color-4', color: ['aquamarine', 127, 255, 212] },
@@ -9,7 +9,7 @@ const initialData = {
     'color-7': { id: 'color-7', color: ['bisque', 255, 228, 196] },
     'color-8': { id: 'color-8', color: ['black', 0, 0, 0] },
     'color-9': { id: 'color-9', color: ['blanchedalmond', 255, 235, 205] },
-    'color-10': { id: 'color-10', color: ['blue', 0, 0, 255]},
+    'color-10': { id: 'color-10', color: ['blue', 0, 0, 255] },
     'color-11': { id: 'color-11', color: ['blueviolet', 138, 43, 226] },
     'color-12': { id: 'color-12', color: ['brown', 165, 42, 42] },
     'color-13': { id: 'color-13', color: ['burlywood', 222, 184, 135] },
@@ -149,7 +149,12 @@ const initialData = {
     'color-147': { id: 'color-147', color: ['yellowgreen', 154, 205, 50] }
   },
   palettes: {
-    'main': {
+    'personal': {
+      id: 'personal',
+      title: 'Personal',
+      colorIds: []
+    },
+    'main': { /* We use this for sorting - cannot wrap such a large palette and expect react-beautiful-dnd to work properly. */
       id: 'main',
       title: 'Main Palette',
       colorIds: ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8', 'color-9', 'color-10',
@@ -168,50 +173,116 @@ const initialData = {
         'color-131', 'color-132', 'color-133', 'color-134', 'color-135', 'color-136', 'color-137', 'color-138', 'color-139', 'color-140',
         'color-141', 'color-142', 'color-143', 'color-144', 'color-145', 'color-146', 'color-147']
     },
-    'personal': {
-      id: 'personal',
-      title: 'Personal Palette',
-      colorIds: []
+    'p1': {
+      id: 'p1',
+      title: 'Row 1',
+      colorIds: ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8', 'color-9', 'color-10',]
     },
-    'red': {
-      id: 'red',
-      title: 'Reds',
-      colorIds: []
+    'p2': {
+      id: 'p2',
+      title: 'Row 2',
+      colorIds: ['color-11', 'color-12', 'color-13', 'color-14', 'color-15', 'color-16', 'color-17', 'color-18', 'color-19', 'color-20']
     },
-    'magenta': {
-      id: 'magenta',
-      title: 'Magentas',
-      colorIds: []
+    'p3': {
+      id: 'p3',
+      title: 'Row 3',
+      colorIds: ['color-21', 'color-22', 'color-23', 'color-24', 'color-25', 'color-26', 'color-27', 'color-28', 'color-29', 'color-30']
     },
-    'blue': {
-      id: 'blue',
-      title: 'Blues',
-      colorIds: []
+    'p4': {
+      id: 'p4',
+      title: 'Row 4',
+      colorIds: ['color-31', 'color-32', 'color-33', 'color-34', 'color-35', 'color-36', 'color-37', 'color-38', 'color-39', 'color-40']
     },
-    'cyan': {
-      id: 'cyan',
-      title: 'Cyans',
-      colorIds: []
+    'p5': {
+      id: 'p5',
+      title: 'Row 5',
+      colorIds: ['color-41', 'color-42', 'color-43', 'color-44', 'color-45', 'color-46', 'color-47', 'color-48', 'color-49', 'color-50']
     },
-    'green': {
-      id: 'green',
-      title: 'Greens',
-      colorIds: []
+    'p6': {
+      id: 'p6',
+      title: 'Row 6',
+      colorIds: ['color-51', 'color-52', 'color-53', 'color-54', 'color-55', 'color-56', 'color-57', 'color-58', 'color-59', 'color-60']
     },
-    'yellow': {
-      id: 'yellow',
-      title: 'Yellows',
-      colorIds: []
+    'p7': {
+      id: 'p7',
+      title: 'Row 7',
+      colorIds: ['color-61', 'color-62', 'color-63', 'color-64', 'color-65', 'color-66', 'color-67', 'color-68', 'color-69', 'color-70']
     },
-    'gray': {
-      id: 'gray',
-      title: 'Grays',
-      colorIds: []
-    }
+    'p8': {
+      id: 'p8',
+      title: 'Row 8',
+      colorIds: ['color-71', 'color-72', 'color-73', 'color-74', 'color-75', 'color-76', 'color-77', 'color-78', 'color-79', 'color-80']
+    },
+    'p9': {
+      id: 'p9',
+      title: 'Row 9',
+      colorIds: ['color-81', 'color-82', 'color-83', 'color-84', 'color-85', 'color-86', 'color-87', 'color-88', 'color-89', 'color-90']
+    },
+    'p10': {
+      id: 'p10',
+      title: 'Row 10',
+      colorIds: ['color-91', 'color-92', 'color-93', 'color-94', 'color-95', 'color-96', 'color-97', 'color-98', 'color-99', 'color-100']
+    },
+    'p11': {
+      id: 'p11',
+      title: 'Row 11',
+      colorIds: ['color-101', 'color-102', 'color-103', 'color-104', 'color-105', 'color-106', 'color-107', 'color-108', 'color-109', 'color-110']
+    },
+    'p12': {
+      id: 'p12',
+      title: 'Row 12',
+      colorIds: ['color-111', 'color-112', 'color-113', 'color-114', 'color-115', 'color-116', 'color-117', 'color-118', 'color-119', 'color-120']
+    },
+    'p13': {
+      id: 'p13',
+      title: 'Row 13',
+      colorIds: ['color-121', 'color-122', 'color-123', 'color-124', 'color-125', 'color-126', 'color-127', 'color-128', 'color-129', 'color-130']
+    },
+    'p14': {
+      id: 'p14',
+      title: 'Row 14',
+      colorIds: ['color-131', 'color-132', 'color-133', 'color-134', 'color-135', 'color-136', 'color-137', 'color-138', 'color-139', 'color-140']
+    },
+    'p15': {
+      id: 'p15',
+      title: 'Row 15',
+      colorIds: ['color-141', 'color-142', 'color-143', 'color-144', 'color-145', 'color-146', 'color-147']
+    },
+    'p16': { // these may be fllled for sort by color.
+      id: 'p16',
+      title: 'Row 16',
+      colorIds: [],
+    },
+    'p17': {
+      id: 'p17',
+      title: 'Row 17',
+      colorIds: [],
+    },
+    'p18': {
+      id: 'p18',
+      title: 'Row 18',
+      colorIds: [],
+    },
+    'p19': {
+      id: 'p19',
+      title: 'Row 19',
+      colorIds: [],
+    },
+    'p20': {
+      id: 'p20',
+      title: 'Row 20',
+      colorIds: [],
+    },
+    'p21': {
+      id: 'p21',
+      title: 'Row 21',
+      colorIds: [],
+    },
   },
   // Facilitate reordering of the columns.
   // 'personal' is not included because it always appears at the top.
-  paletteOrder: ['main'],
+  // 'main' is not included because it is only used for sorting.
+  paletteOrder: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15'],
 };
 
 export default initialData;

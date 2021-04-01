@@ -55,19 +55,17 @@ It's the background of the twirling atom of the logo for create-react-app.
   display: flex;
   justify-content: center;
   background-color: white;
-  flex-flow: row wrap;
-  padding: 5px;
-  margin: 15px auto;
+  flex-direction: row;
+  margin: 0 auto;
   width: 95%;
-  min-height: 120px;
+  min-height: 100px;
 }
 
 .ColorChip {
-  height: 110px;
-  width: 165px;
+  height: 75px;
+  width: 100px;
   margin: 5px;
-}
-
-.OneChip {
-  margin: 5px;
+  /*flex-basis: 200px;*/
+  /*flex-grow: 1;*/
+  font-size: 10px;
 }
