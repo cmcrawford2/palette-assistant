@@ -27,6 +27,19 @@ It's the background of the twirling atom of the logo for create-react-app.
   justify-content: center;
 }
 
+.App-description {
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  padding: 25px 0;
+}
+
+.App-description h3 {
+  text-align: left;
+  margin: 0;
+}
+
 .App h1, h2, h3, a {
   font-family: "Crimson Text", serif;
   color: #221133;
@@ -63,9 +76,9 @@ It's the background of the twirling atom of the logo for create-react-app.
 
 .ColorChip {
   height: 75px;
-  width: 100px;
+  /*width: 100px;*/
   margin: 5px;
-  /*flex-basis: 200px;*/
+  width: 100px;
   /*flex-grow: 1;*/
   font-size: 10px;
 }

@@ -2,29 +2,16 @@ import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import './style.css'
 
-export default class ColorChip extends React.Component {
+export default class RandomColorChip extends React.Component {
 
-  getHex = (r,g,b) => {
-    var hexStr = "#";
-    if (r < 16) hexStr += "0";
-    hexStr += r.toString(16);
-    if (g < 16) hexStr += "0";
-    hexStr += g.toString(16);
-    if (b < 16) hexStr += "0";
-    hexStr += b.toString(16);
-    return hexStr;
-  }
+  // This element exists only because I was not able to figure out how to pass randomMode into ColorChip.
 
   render() {
     var r = this.props.color.color[1]
     var g = this.props.color.color[2]
     var b = this.props.color.color[3]
-    var hexString = "";
-    if (this.props.rMode != true)
-      hexString = this.getHex(r, g, b);
     var textColor = 'black';
     if (0.299 * r + 0.587 * g + 0.114 * b < 100) textColor = 'white';
-
     return (
       <Draggable
         draggableId={this.props.color.id}
@@ -41,7 +28,6 @@ export default class ColorChip extends React.Component {
               style={{ backgroundColor: this.props.color.color[0], color: textColor, paddingTop: 15 }}
             >
               <p>{this.props.color.color[0]}</p>
-              <p>{hexString}</p>
             </div>
           </div>
         )}

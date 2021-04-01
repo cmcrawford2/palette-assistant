@@ -82,6 +82,41 @@ class App extends React.Component {
     }
   }
 
+  toHexColor = (r, g, b) => {
+    var HexColor = "#";
+    if (r < 16) HexColor += "0";
+    HexColor += r.toString(16);
+    if (g < 16) HexColor += "0";
+    HexColor += g.toString(16);
+    if (b < 16) HexColor += "0";
+    HexColor += b.toString(16);
+    return HexColor;
+  }
+
+  // Generate a random set of colors
+  
+  randomSet = () => {
+    // Make a copy of state that we will modify directly.
+    var newState = { ...this.state };
+    newState.randomMode = true;
+    // Use colorIds starting from 200.
+    for (var i = 0; i < 100; i++) {
+      // Make a new color
+      var r = Math.floor(256*Math.random());
+      var g = Math.floor(256*Math.random());
+      var b = Math.floor(256*Math.random());
+      var colorName = this.toHexColor(r, g, b);
+      const newColor = [colorName, r, g, b];
+      var colorId = "color-" + (i+201).toString();
+      newState.colors[colorId].color = newColor;
+    }
+    // Only show the first 10 rows.
+    // These palettes won't be used once the sort buttons are pushed. But for now they are useful.
+    const newPaletteOrder = ['p201', 'p202', 'p203', 'p204', 'p205', 'p206', 'p207', 'p208', 'p209', 'p210'];
+    newState.paletteOrder = newPaletteOrder;
+    this.setState(newState);
+  }
+
   // Sorting stuff
 
   compareLightness = (color1, color2) => {
@@ -106,8 +141,11 @@ class App extends React.Component {
     var reds = [];
     var greens = [];
     var blues = [];
-    // For now all chips are in the main palette area.
-    var colorIds = this.state.palettes["main"].colorIds;
+    var colorIds = [];
+    if (this.state.randomMode === false)
+      colorIds = this.state.palettes["main"].colorIds;
+    else
+      colorIds = this.state.palettes["random"].colorIds;
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -173,8 +211,11 @@ class App extends React.Component {
     var magentas = [];
     var yellows = [];
     var grays = [];
-    // For now all chips are in the main palette area.
-    var colorIds = this.state.palettes["main"].colorIds;
+    var colorIds = [];
+    if (this.state.randomMode === false)
+      colorIds = this.state.palettes["main"].colorIds;
+    else
+      colorIds = this.state.palettes["random"].colorIds;
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -243,8 +284,11 @@ class App extends React.Component {
     var magentas = [];
     var yellows = [];
     var grays = [];
-    // For now all chips are in the main palette area.
-    var colorIds = this.state.palettes["main"].colorIds;
+    var colorIds = [];
+    if (this.state.randomMode === false)
+      colorIds = this.state.palettes["main"].colorIds;
+    else
+      colorIds = this.state.palettes["random"].colorIds;
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -323,7 +367,11 @@ class App extends React.Component {
   }
 
   sortLightToDark = () => {
-    var colorCopy = this.state.palettes['main'].colorIds;
+    var colorCopy = [];
+    if (this.state.randomMode === false)
+      colorCopy = this.state.palettes["main"].colorIds;
+    else
+      colorCopy = this.state.palettes["random"].colorIds;
     colorCopy.sort(this.compareWeighted);
     // we might want to update ids in main array to reflect new order, but not now.
     // Update ids in the 15 rows.
@@ -348,6 +396,12 @@ class App extends React.Component {
       };
       newState = tempState;
     }
+    
+    // In random mode, we need to tell state that colors are now in the first ten rows.
+    if (this.state.randomMode === true) {
+      newState.paletteOrder = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10'];
+    }
+
     this.setState(newState);
   }
   
@@ -359,16 +413,24 @@ class App extends React.Component {
     <div className="App">
       <header className="App-header">
         <h1>Personal Palette Assistant</h1>
+        <div className="App-description">
+          <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
+          <h3>Or, sort and rearrange the color chips in the main section.</h3>
+        </div>
       </header>
       <div>
         <DragDropContext
           onDragEnd = {this.onDragEnd}>
           <Palette
             key={'personal'}
+            rMode = {this.state.randomMode}
             palette={this.state.palettes['personal']}
             colorArray={this.state.palettes['personal'].colorIds.map(colorId => this.state.colors[colorId])}
           />
           <div className="ButtonRow">
+            <button className="SortButton" onClick={this.randomSet}>
+              Random
+            </button>
             <button className="SortButton" onClick={this.sortRGB}>
               Sort RGB
             </button>
@@ -385,7 +447,7 @@ class App extends React.Component {
           {this.state.paletteOrder.map(paletteId => {
             const palette = this.state.palettes[paletteId];
             const colorArray = palette.colorIds.map(colorId => this.state.colors[colorId]);
-            return <Palette key={palette.id} palette={palette} colorArray={colorArray} />
+            return <Palette key={palette.id} rMode={this.state.rMode} palette={palette} colorArray={colorArray} />
           })}
         </DragDropContext>
       </div>

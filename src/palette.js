@@ -17,9 +17,9 @@ export default class Palette extends React.Component {
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
-              {this.props.colorArray.map((color, index) => (
-                <ColorChip key={color.id} color={color} index={index} />
-              ))}
+              {this.props.colorArray.map((color, index) => {
+                return <ColorChip key={color.id} color={color} index={index} />
+              })}
 
             {provided.placeholder}
           </div>
