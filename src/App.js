@@ -78,6 +78,25 @@ class App extends React.Component {
           [toPalette.id]: toPalette,
         },
       };
+      // Before we set the state to the new state, make all the rows have 10 chips again.
+      // Yes I know this is really rotten software design, but I'm stuck with fixed rows for now.
+      var pOrder = this.state.paletteOrder;
+      var too_long = pOrder.indexOf(destination.droppableId);
+      var too_short = pOrder.indexOf(source.droppableId);
+      if (too_long < too_short) {
+        // pop the end of all rows from too_long and prepend to next row.
+        for (var p_i = too_long; p_i < too_short; p_i++) {
+          var extraId = newState2.palettes[pOrder[p_i]].colorIds.pop();
+          newState2.palettes[pOrder[p_i+1]].colorIds.unshift(extraId);
+        }
+      }
+      else {
+        // Remove the beginning from the next row and append to the short row
+        for (p_i = too_short; p_i < too_long; p_i++) {
+          extraId = newState2.palettes[pOrder[p_i+1]].colorIds.shift();
+          newState2.palettes[pOrder[p_i]].colorIds.push(extraId);
+        }
+      }
       this.setState(newState2);
     }
   }
@@ -380,7 +399,11 @@ class App extends React.Component {
     // Update internal state and then setState at the very end.
     // Otherwise it won't work because this.state isn't actually updated until later.
     var newState = {...this.state};
-    for (var i = 0; i < 15; i++) {
+    var newPaletteOrder = [];
+    var n_rows = 15;  
+    if (this.state.randomMode === true) n_rows = 10;
+
+    for (var i = 0; i < n_rows; i++) {
       var colorSection = colorCopy.slice(10*i, 10*(i+1)); // last row is short but slice does what we need.
       var paletteId = "p" + (i+1).toString();
       var newPalette = {
@@ -395,12 +418,10 @@ class App extends React.Component {
         },
       };
       newState = tempState;
+      newPaletteOrder.push(newPalette.id);
     }
     
-    // In random mode, we need to tell state that colors are now in the first ten rows.
-    if (this.state.randomMode === true) {
-      newState.paletteOrder = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10'];
-    }
+    newState.paletteOrder = newPaletteOrder;
 
     this.setState(newState);
   }
