@@ -64,6 +64,26 @@ It's the background of the twirling atom of the logo for create-react-app.
   margin: 25px;
 }
 
+.SortDescriptionContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.SortDescription {
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  padding: 25px 0;
+}
+
+.SortDescription h3 {
+  text-align: left;
+  margin: 0;
+}
+
 .RowOfChips {
   display: flex;
   justify-content: center;

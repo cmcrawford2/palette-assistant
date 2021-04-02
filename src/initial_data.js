@@ -1,5 +1,11 @@
 const initialData = {
   randomMode: false,
+
+  // Weights are from the internet.
+  gWeight: 0.587,
+  rWeight: 0.299,
+  bWeight: 0.114,
+
   colors: {
     'color-1': { id: 'color-1', color: ["aliceblue", 240, 248, 255] },
     'color-2': { id: 'color-2', color: ['antiquewhite', 250, 235, 215] },

@@ -4,11 +4,6 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import Palette from './palette.js'
 import "./style.css";
 
-// Using relative luminance https://planetcalc.com/7779/
-const gWeight = 0.587;
-const rWeight = 0.299;
-const bWeight = 0.114;
-
 class App extends React.Component {
   // Initialize the state with structures representing 147 colors, useful palettes,
   // and an array of active palette IDs.
@@ -154,9 +149,27 @@ class App extends React.Component {
   compareWeighted = (colorId1, colorId2) => {
     var color1 = this.state.colors[colorId1];
     var color2 = this.state.colors[colorId2];
-    return (rWeight * (color2.color[1] * color2.color[1] - color1.color[1] * color1.color[1]) +
-      gWeight * (color2.color[2] * color2.color[2] - color1.color[2] * color1.color[2]) +
-      bWeight * (color2.color[3] * color2.color[3] - color1.color[3] * color1.color[3]));
+    return (this.state.rWeight * (color2.color[1] - color1.color[1]) +
+            this.state.gWeight * (color2.color[2] - color1.color[2]) +
+            this.state.bWeight * (color2.color[3] - color1.color[3]));
+  }
+
+  getSortableArray = () => {
+    var colorIds = [];
+    if (this.state.randomMode === false)
+      colorIds = this.state.palettes["main"].colorIds.slice();
+    else
+      colorIds = this.state.palettes["random"].colorIds.slice();
+    // Remove any chips that are in the personal palette.
+    var personalIds = this.state.palettes["personal"].colorIds;
+    if (personalIds.length > 0) {
+      for (var i = 0; i < personalIds.length; i++) {
+        // remove this id from the colorIds array.
+        var c_i = colorIds.indexOf(personalIds[i]);
+        colorIds.splice(c_i, 1);
+      }
+    }
+    return colorIds;
   }
 
   sortRGB = () => {
@@ -164,11 +177,8 @@ class App extends React.Component {
     var reds = [];
     var greens = [];
     var blues = [];
-    var colorIds = [];
-    if (this.state.randomMode === false)
-      colorIds = this.state.palettes["main"].colorIds;
-    else
-      colorIds = this.state.palettes["random"].colorIds;
+    var colorIds = this.getSortableArray();
+
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -193,11 +203,8 @@ class App extends React.Component {
     greens.sort(this.compareWeighted);
     blues.sort(this.compareWeighted);
 
-    // We won't separate the lists into sections on the display.
-    // Order is r, g, b, k.
-    var sortedIds = reds.concat(greens, blues, grays);
-
-    this.refillRows(sortedIds);
+    // Order of the new display is r, g, b, gray.
+    this.refillRows(reds.concat(greens, blues, grays));
   }
 
   sortCMYK = () => {
@@ -205,11 +212,8 @@ class App extends React.Component {
     var magentas = [];
     var yellows = [];
     var grays = [];
-    var colorIds = [];
-    if (this.state.randomMode === false)
-      colorIds = this.state.palettes["main"].colorIds;
-    else
-      colorIds = this.state.palettes["random"].colorIds;
+    var colorIds = this.getSortableArray();
+
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -235,10 +239,7 @@ class App extends React.Component {
     yellows.sort(this.compareWeighted);
 
     // Order of the new display is cyan, magenta, yellow, gray.
-
-    var sortedIds = cyans.concat(magentas, yellows, grays);
-
-    this.refillRows(sortedIds);
+    this.refillRows(cyans.concat(magentas, yellows, grays));
   }
 
   sort6 = () => {
@@ -249,11 +250,8 @@ class App extends React.Component {
     var magentas = [];
     var yellows = [];
     var grays = [];
-    var colorIds = [];
-    if (this.state.randomMode === false)
-      colorIds = this.state.palettes["main"].colorIds;
-    else
-      colorIds = this.state.palettes["random"].colorIds;
+    var colorIds = this.getSortableArray();
+
     for (var i = 0; i < colorIds.length; i++) {
       var colorId = colorIds[i];
       var colorChip = this.state.colors[colorId];
@@ -293,17 +291,11 @@ class App extends React.Component {
     grays.sort(this.compareWeighted);
 
     // Order of the new display is R Y G C B M K
-    var sortedIds = reds.concat(yellows, greens, cyans, blues, magentas, grays);
-
-    this.refillRows(sortedIds);
+    this.refillRows(reds.concat(yellows, greens, cyans, blues, magentas, grays));
   }
 
   sortLightToDark = () => {
-    var colorCopy = [];
-    if (this.state.randomMode === false)
-      colorCopy = this.state.palettes["main"].colorIds;
-    else
-      colorCopy = this.state.palettes["random"].colorIds;
+    var colorCopy = this.getSortableArray();
     colorCopy.sort(this.compareWeighted);
     this.refillRows(colorCopy);
   }
@@ -354,10 +346,16 @@ class App extends React.Component {
           onDragEnd = {this.onDragEnd}>
           <Palette
             key={'personal'}
-            rMode = {this.state.randomMode}
             palette={this.state.palettes['personal']}
             colorArray={this.state.palettes['personal'].colorIds.map(colorId => this.state.colors[colorId])}
           />
+          <div className="SortDescriptionContainer">
+            <div className="SortDescription">
+              <h3>Sorted colors are grouped by predominant hue and sorted by perceived lightness.</h3>
+              <h3>Perceived lightness is computed here as 0.587 green + 0.299 red + 0.114 blue.</h3>
+              <h3>If you think you can come up with a better order, move the chips around and select "Reorder" to compute new coefficients.</h3>
+            </div>
+          </div>
           <div className="ButtonRow">
             <button className="SortButton" onClick={this.randomSet}>
               Random
@@ -378,7 +376,7 @@ class App extends React.Component {
           {this.state.paletteOrder.map(paletteId => {
             const palette = this.state.palettes[paletteId];
             const colorArray = palette.colorIds.map(colorId => this.state.colors[colorId]);
-            return <Palette key={palette.id} rMode={this.state.rMode} palette={palette} colorArray={colorArray} />
+            return <Palette key={palette.id} palette={palette} colorArray={colorArray} />
           })}
         </DragDropContext>
       </div>
