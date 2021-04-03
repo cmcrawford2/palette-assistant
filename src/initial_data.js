@@ -1,5 +1,8 @@
 const initialData = {
   randomMode: false,
+  sortedMode: false,
+  recomputed: false,
+  newWeights: false,
 
   // Weights are from the internet.
   gWeight: 0.587,
