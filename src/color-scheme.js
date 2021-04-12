@@ -86,7 +86,7 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
     littleIndex = startColors.indexOf(startHueChroma);
     var i1 = round(startIndex + n_colors / 4);
     var i2 = round(startIndex + n_colors / 2);
-    var i3 = i1 + i2;
+    var i3 = round(startIndex + 3 * n_colors / 4);
     var i1Colors = getNearestNeighbors(i1 - 3, 6, hueChromaArray);
     var i2Colors = getNearestNeighbors(i2 - 3, 6, hueChromaArray);
     var i3Colors = getNearestNeighbors(i3 - 3, 6, hueChromaArray);
