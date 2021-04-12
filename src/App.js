@@ -4,7 +4,10 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import Palette from './palette.js'
 import Recomputed from './recomputed.js'
 import computeNewWeights from './compute-weights.js'
+import getColorScheme from './color-scheme.js'
 import "./style.css";
+import { atan2 } from "mathjs";
+import { sqrt } from "mathjs";
 
 class App extends React.Component {
   // Initialize the state with structures representing 147 colors, useful palettes,
@@ -138,14 +141,16 @@ class App extends React.Component {
     // But for now it saves us from having to refill p1 through p10.
     const newPaletteOrder = ['p201', 'p202', 'p203', 'p204', 'p205', 'p206', 'p207', 'p208', 'p209', 'p210'];
     newState.paletteOrder = newPaletteOrder;
+    // Reset the personal palette to be empty.
+    newState.palettes['personal'].colorIds = [];
     this.setState(newState);
   }
 
   // Restore the named colors
   resetHTML = () => {
     var colorIds = this.state.palettes["main"].colorIds.slice();
-    this.removePersonalColors(colorIds);
     var newState = this.refillRows(colorIds);
+    newState.palettes['personal'].colorIds = [];
     newState.randomMode = false;
     newState.sortedMode = false;
     newState.recomputed = false;
@@ -171,9 +176,8 @@ class App extends React.Component {
             this.state.bWeight * (color2.color[3] - color1.color[3]));
   }
 
-  removePersonalColors = (colorIds) => {
+  removePersonalColors = (personalIds, colorIds) => {
   // Remove any chips that are in the personal palette.
-    var personalIds = this.state.palettes["personal"].colorIds;
     if (personalIds.length > 0) {
       for (var i = 0; i < personalIds.length; i++) {
         // remove this id from the colorIds array.
@@ -190,7 +194,7 @@ class App extends React.Component {
       colorIds = this.state.palettes["main"].colorIds.slice();
     else
       colorIds = this.state.palettes["random"].colorIds.slice();
-    this.removePersonalColors(colorIds);
+    this.removePersonalColors(this.state.palettes["personal"].colorIds, colorIds);
     return colorIds;
   }
 
@@ -399,6 +403,80 @@ class App extends React.Component {
     this.setState(newState);
   }
 
+  transformRGBtoHueChroma = (colorId) => {
+    var colorRGB = this.state.colors[colorId];
+    var red = colorRGB.color[1]/255;
+    var green = colorRGB.color[2]/255;
+    var blue = colorRGB.color[3]/255;
+    if (red === green && red === blue) return [];
+    var alpha = 0.5 * (2 * red - green - blue);
+    var beta = sqrt(3) * 0.5 * (green - blue);
+    var lightness = this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue;
+    
+    var hueChroma = {
+      colorId: colorRGB.id,
+      hue: atan2(alpha, beta),
+      //chroma: sqrt(alpha * alpha + beta * beta),
+      chroma: lightness,
+    };
+
+    return [hueChroma];
+  }
+
+  analogous = () => {
+    return this.fillPalette("analogous");
+  }
+
+  complementary = () => {
+    return this.fillPalette("complementary");
+  }
+
+  tertiary = () => {
+    return this.fillPalette("tertiary");
+  }
+
+  square = () => {
+    return this.fillPalette("square");
+  }
+
+  split = () => {
+    return this.fillPalette("split");
+  }
+
+  fillPalette = (how) => {
+    // Compute an analogous color scheme.
+    var startColorId = this.state.palettes['personal'].colorIds[0];
+    // First map the color array into an array of structures sortable by color wheel angle.
+    var sortableArray = this.getSortableArray();
+    var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
+    var startHueChroma = this.transformRGBtoHueChroma(startColorId);
+    // Better check for gray first.
+    var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
+    // colorSchemeArray contains ids of colors that match according to "how."
+    // Remove them from main array and put them in the personal palette.
+
+    this.removePersonalColors(colorSchemeIdArray, sortableArray);
+
+    // Initialize a new state, copy of the old with rows refilled.
+    var newRowsState = this.refillRows(sortableArray);
+
+    // Create a new personal palette
+    var newPalette = {
+      ...newRowsState.palettes['personal'],
+      colorIds: colorSchemeIdArray,
+    };
+
+    // Final new state has the diminshed rows and filled personal palette.
+    var newState = {
+      ...newRowsState,
+      palettes: {
+        ...newRowsState.palettes,
+        [newPalette.id]: newPalette,
+      },
+    }
+    this.setState(newState);
+  }
+  
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
 
@@ -409,6 +487,7 @@ class App extends React.Component {
         <h1>Personal Palette Assistant</h1>
         <div className="App-description">
           <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
+          <h3>When you have chosen one color, you will have to option to compute a palette.</h3>
           <h3>Or, sort and rearrange the color chips in the main section.</h3>
         </div>
       </header>
@@ -420,6 +499,25 @@ class App extends React.Component {
             palette={this.state.palettes['personal']}
             colorArray={this.state.palettes['personal'].colorIds.map(colorId => this.state.colors[colorId])}
           />
+          { this.state.palettes['personal'].colorIds.length===1 &&
+              <div className="ButtonRow">
+                <button className="SortButton" onClick={this.analogous}>
+                  Analogous
+                </button>
+                <button className="SortButton" onClick={this.complementary}>
+                  Complementary
+                </button>
+                <button className="SortButton" onClick={this.tertiary}>
+                  Tertiary
+                </button>
+                <button className="SortButton" onClick={this.square}>
+                  Square
+                </button>
+                <button className="SortButton" onClick={this.split}>
+                  Split Complementary
+                </button>
+              </div>
+          }
           <div className="SortDescriptionContainer">
             <div className="SortDescription">
               <h3>Sorted colors are grouped by predominant hue and sorted by perceived lightness.</h3>
@@ -433,7 +531,7 @@ class App extends React.Component {
             </button>
             <button className="SortButton" onClick={this.resetHTML}>
               Reset HTML
-            </button>  
+            </button>
             <button className="SortButton" onClick={this.sortRGB}>
               Sort RGB
             </button>
