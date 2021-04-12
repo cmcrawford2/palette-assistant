@@ -423,6 +423,18 @@ class App extends React.Component {
     return [hueChroma];
   }
 
+  gray = (colorId) => {
+    return ((this.state.colors[colorId].color[1] === this.state.colors[colorId].color[2]) &&
+            (this.state.colors[colorId].color[1] === this.state.colors[colorId].color[3]));
+  }
+  getGraysOnly = (colorId) => {
+    // If R, G and B are the same, we can't compute hue.
+    if (this.gray(colorId) === true) {
+          return [colorId];
+        }
+    return [];
+  }
+
   analogous = () => {
     return this.fillPalette("analogous");
   }
@@ -448,13 +460,28 @@ class App extends React.Component {
     var startColorId = this.state.palettes['personal'].colorIds[0];
     // First map the color array into an array of structures sortable by color wheel angle.
     var sortableArray = this.getSortableArray();
-    var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
-    var startHueChroma = this.transformRGBtoHueChroma(startColorId);
-    // Better check for gray first.
-    var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
-    // colorSchemeArray contains ids of colors that match according to "how."
-    // Remove them from main array and put them in the personal palette.
 
+    if (this.gray(startColorId) === false) {
+      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
+      var startHueChroma = this.transformRGBtoHueChroma(startColorId);
+      // Better check for gray first.
+      var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
+      // colorSchemeArray contains ids of colors that match according to "how."
+    }
+    else {
+      // just get gray and sort by lightness.
+      var grays = sortableArray.flatMap(this.getGraysOnly);
+      // Append the start id - sortable is only main grid.
+      grays.push(startColorId);
+      grays.sort(this.compareWeighted);
+      colorSchemeIdArray = [];
+      var oddEven = grays.indexOf(startColorId) % 2;
+      for (var i = 0; i < grays.length; i++) {
+        if ((i+oddEven) % 2 === 0)
+        colorSchemeIdArray.push(grays[i]);
+      }
+    }
+    // Remove color scheme colors from main array and put them in the personal palette.
     this.removePersonalColors(colorSchemeIdArray, sortableArray);
 
     // Initialize a new state, copy of the old with rows refilled.
