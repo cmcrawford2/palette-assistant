@@ -516,6 +516,7 @@ class App extends React.Component {
           <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
           <h3>When you have chosen one color, you will have to option to compute a palette.</h3>
           <h3>Or, sort and rearrange the color chips in the main section.</h3>
+          <h3>If you select some text and drag the cursor across the palette, most browsers will copy it to clipboard.</h3> 
         </div>
       </header>
       <div>

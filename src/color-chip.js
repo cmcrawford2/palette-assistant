@@ -32,26 +32,29 @@ export default class ColorChip extends React.Component {
     if (0.299 * r + 0.587 * g + 0.114 * b < 100) textColor = 'white';
 
     return (
-      <Draggable
-        draggableId={this.props.color.id}
-        index={this.props.index}
-      >
-        {provided => (
-          <div
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-          >
-            <div  /* This div has to be nested because draggableProps overwrites style. */
-              className="ColorChip"
-              style={{ backgroundColor: colorName, color: textColor, paddingTop: 15 }}
+      <div className="ColorChipContainer">
+
+        <Draggable
+          draggableId={this.props.color.id}
+          index={this.props.index}
+        >
+          {provided => (
+            <div
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              ref={provided.innerRef}
             >
-              <p>{colorName}</p>
-              <p>{altName}</p>
+                <div  /* This div has to be nested because draggableProps overwrites style. */
+                  className="ColorChip"
+                  style={{ backgroundColor: colorName, color: textColor, paddingTop: 15 }}
+                >
+                  <p>{colorName}</p>
+                  <p>{altName}</p>
+                </div>
             </div>
-          </div>
-        )}
-      </Draggable>
+          )}
+        </Draggable>
+      </div>
     )
   }
 }

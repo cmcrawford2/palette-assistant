@@ -28,7 +28,7 @@ It's the background of the twirling atom of the logo for create-react-app.
 }
 
 .App-description {
-  width: 95%;
+  width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: left;
@@ -51,7 +51,7 @@ It's the background of the twirling atom of the logo for create-react-app.
 
 .ButtonRow {
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   align-items: center;
   justify-content: center;
 }
@@ -72,7 +72,7 @@ It's the background of the twirling atom of the logo for create-react-app.
 }
 
 .SortDescription {
-  width: 95%;
+  width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: left;
@@ -90,15 +90,19 @@ It's the background of the twirling atom of the logo for create-react-app.
   background-color: white;
   flex-direction: row;
   margin: 0 auto;
-  width: 95%;
+  width: 90%;
   min-height: 100px;
+}
+
+.ColorChipContainer {
+  width: 10%;
 }
 
 .ColorChip {
   height: 75px;
-  /*width: 100px;*/
   margin: 5px;
-  width: 100px;
+  /* width: calc(10%-10px); */
+  /*width: 100px;*/
   /*flex-grow: 1;*/
   font-size: 10px;
 }
