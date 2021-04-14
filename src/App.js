@@ -103,6 +103,59 @@ class App extends React.Component {
     }
   }
 
+// ********** Utility functions for managing the data in state. ***********
+
+// Color chips should not appear in more than one place. Drag and Drop requires all the "droppables" to have unique ids.
+// so before we reformat the grid using a button function, we need to remove any color that has been placed in the personal palette.
+
+  removePersonalColors = (personalIds, colorIds) => {
+    // Remove any chips that are in the personal palette.
+    if (personalIds.length > 0) {
+      for (var i = 0; i < personalIds.length; i++) {
+        // remove this id from the colorIds array.
+        var c_i = colorIds.indexOf(personalIds[i]);
+        if (c_i >= 0)
+          colorIds.splice(c_i, 1);
+      }
+    }
+  }
+
+// Fill the grid rows ("palettes") with input color ids.
+// Whether random or HTML (randomMode === false) has to be properly set in the new state.
+// This should be called in two ways.
+// 1: newColorIds include all the colors, and personal palette is empty.
+// 2: Otherwise make sure before calling this that there are no colors in both personal palette and in the newColorIds array.
+
+  refillRows = (newState, newColorIds) => {
+    // Cannot update actual state in a loop because setState is asynchronous.
+    // Also because of this, newState is not modified, but a different state is returned.
+    var newPaletteOrder = [];
+
+    var n_p = Math.ceil(0.1 * newColorIds.length); // Number of rows, 10 color chips each plus remainder row.
+
+    var offset = (newState.randomMode === false) ? 1 : 201;
+
+    for (var i = 0; i < n_p; i++) {
+      var colorSection = newColorIds.slice(10 * i, 10 * (i + 1));
+      var paletteId = "p" + (i + offset).toString();
+      var newPalette = {
+        ...newState.palettes[paletteId],
+        colorIds: colorSection,
+      };
+      var tempState = {
+        ...newState,
+        palettes: {
+          ...newState.palettes,
+          [newPalette.id]: newPalette,
+        },
+      };
+      newState = tempState;
+      newPaletteOrder.push(paletteId);
+    }
+    newState.paletteOrder = newPaletteOrder;
+    return newState;
+  }
+
   toHexColor = (r, g, b) => {
     var HexColor = "#";
     if (r < 16) HexColor += "0";
@@ -117,47 +170,66 @@ class App extends React.Component {
   // Generate a random set of colors
   
   randomSet = () => {
+    // This function makes a new grid of 100 random colors.
+    // It also clears the personal palette.
+
     // Make a copy of state that we will modify directly.
     var newState = { ...this.state };
     newState.randomMode = true;
+
     // Reinitialize sorting and recomputing logicals.
     // Don't reset newWeights. They should persist so we can test how well they work.
     newState.sortedMode = false;
     newState.recomputed = false;
-    // Use colorIds starting from 200.
-    // We do this in case we ever decided go back to HTML colors.
+
+    // Use color Ids starting from 200.
+    // HTML named colors use ids 1 to 147.
+    var colorIds = [];
     for (var i = 0; i < 100; i++) {
-      // Make a new color
+      var colorId = "color-" + (i+201).toString();
+      colorIds.push(colorId);
+    }
+
+    // Now compute 100 random colors!
+    for (i = 0; i < 100; i++) {
       var r = Math.floor(256*Math.random());
       var g = Math.floor(256*Math.random());
       var b = Math.floor(256*Math.random());
       var colorName = this.toHexColor(r, g, b);
       const newColor = [colorName, r, g, b];
-      var colorId = "color-" + (i+201).toString();
-      newState.colors[colorId].color = newColor;
+      newState.colors[colorIds[i]].color = newColor;
     }
-    // Only show the first 10 rows (palettes).
-    // These palettes won't be used once the sort buttons are pushed.
-    // But for now it saves us from having to refill p1 through p10.
-    const newPaletteOrder = ['p201', 'p202', 'p203', 'p204', 'p205', 'p206', 'p207', 'p208', 'p209', 'p210'];
-    newState.paletteOrder = newPaletteOrder;
+
+    // Refill the rows and the row palette id lists.
+    newState = this.refillRows(newState, colorIds);
+    
     // Reset the personal palette to be empty.
     newState.palettes['personal'].colorIds = [];
+
     this.setState(newState);
   }
 
-  // Restore the named colors
+  // Restore the named colors in alphabetical order
+
   resetHTML = () => {
+    // All of the HTML named color ids live in the main palette.
+    // The could conceivably live outside somewhere, since "main" doesn't change.
     var colorIds = this.state.palettes["main"].colorIds.slice();
-    var newState = this.refillRows(colorIds);
-    newState.palettes['personal'].colorIds = [];
+    var newState = { ...this.state };
     newState.randomMode = false;
     newState.sortedMode = false;
     newState.recomputed = false;
+
+    // Refill the rows and the row palette id lists.
+    newState = this.refillRows(newState, colorIds);
+
+    // Rest the personal palette to be empty.
+    newState.palettes['personal'].colorIds = [];
+
     this.setState(newState);
   }
 
-  // Sorting stuff
+  // ********** Sorting stuff ************
 
   compareLightness = (color1, color2) => {
     // From wikipedia - doesn't really do it for me.
@@ -176,19 +248,10 @@ class App extends React.Component {
             this.state.bWeight * (color2.color[3] - color1.color[3]));
   }
 
-  removePersonalColors = (personalIds, colorIds) => {
-  // Remove any chips that are in the personal palette.
-    if (personalIds.length > 0) {
-      for (var i = 0; i < personalIds.length; i++) {
-        // remove this id from the colorIds array.
-        var c_i = colorIds.indexOf(personalIds[i]);
-        if (c_i >= 0)
-          colorIds.splice(c_i, 1);
-      }
-    }
-  }
-
   getSortableArray = () => {
+    // main and random palettes are actually never touched. They contain 147 HTML ids and 100 random ids.
+    // The ids do not change and in the case of HTML, neither do the colors.
+    // When randomMode is true, 100 random colors corresponding to the ids have already been initialized.
     var colorIds = [];
     if (this.state.randomMode === false)
       colorIds = this.state.palettes["main"].colorIds.slice();
@@ -230,7 +293,8 @@ class App extends React.Component {
     blues.sort(this.compareWeighted);
 
     // Order of the new display is r, g, b, gray.
-    var newState = this.refillRows(reds.concat(greens, blues, grays));
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, reds.concat(greens, blues, grays));
     newState.sortedMode = false;
     newState.recomputed = false;
     this.setState(newState);
@@ -268,7 +332,8 @@ class App extends React.Component {
     yellows.sort(this.compareWeighted);
 
     // Order of the new display is cyan, magenta, yellow, gray.
-    var newState = this.refillRows(cyans.concat(magentas, yellows, grays));
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, cyans.concat(magentas, yellows, grays));
     newState.sortedMode = false;
     newState.recomputed = false;
     this.setState(newState);
@@ -323,7 +388,8 @@ class App extends React.Component {
     grays.sort(this.compareWeighted);
 
     // Order of the new display is R Y G C B M K
-    var newState = this.refillRows(reds.concat(yellows, greens, cyans, blues, magentas, grays));
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, reds.concat(yellows, greens, cyans, blues, magentas, grays));
     newState.sortedMode = false;
     newState.recomputed = false;
     this.setState(newState);
@@ -332,44 +398,20 @@ class App extends React.Component {
   sortLightToDark = () => {
     var colorCopy = this.getSortableArray();
     colorCopy.sort(this.compareWeighted);
-    var newState = this.refillRows(colorCopy);
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, colorCopy);
     newState.sortedMode = true;
     newState.recomputed = false;
     this.setState(newState);
   }
   
-  refillRows = (newColorIds) => {
-    // Cannot update actual state in a loop because setState is asynchronous.
-    var newState = { ...this.state };
-    var newPaletteOrder = [];
-
-    var n_p = Math.ceil(0.1 * newColorIds.length); // Number of rows, 10 color chips each plus remainder row.
-
-    for (var i = 0; i < n_p; i++) {
-      var colorSection = newColorIds.slice(10 * i, 10 * (i + 1));
-      var paletteId = "p" + (i+1).toString();
-      var newPalette = {
-        ...this.state.palettes[paletteId],
-        colorIds: colorSection,
-      };
-      var tempState = {
-        ...newState,
-        palettes: {
-          ...newState.palettes,
-          [newPalette.id]: newPalette,
-        },
-      };
-      newState = tempState;
-      newPaletteOrder.push(paletteId);
-    }
-    newState.paletteOrder = newPaletteOrder;
-    return newState;
-  }
+  // **************** recompute weights according to user modified sort. ************
 
   recomputeWeights = () => {
     // Assemble array of rbg of colors in user order.
     // Only do this if the palette has been totally sorted.
     // Todo: some kind of error handling that can be displayed to the user.
+    // Using all of these flags in state is very bad style.
     // this.state.recomputed is basically only used to format an error message.
     if (this.state.sortedMode === false) {
       this.setState({ recomputed: true });
@@ -381,8 +423,6 @@ class App extends React.Component {
       for (var ci = 0; ci < paletteColorIds.length; ci++) {
         colorIdArray.push(paletteColorIds[ci]);
       }
-      // For debugging
-      // if (pi === 0) break;
     }
 
     var colorArray = [];
@@ -403,6 +443,8 @@ class App extends React.Component {
     this.setState(newState);
   }
 
+  // ************** Palette stuff **************
+
   transformRGBtoHueChroma = (colorId) => {
     var colorRGB = this.state.colors[colorId];
     var red = colorRGB.color[1]/255;
@@ -416,7 +458,7 @@ class App extends React.Component {
     var hueChroma = {
       colorId: colorRGB.id,
       hue: atan2(alpha, beta),
-      //chroma: sqrt(alpha * alpha + beta * beta),
+      //chroma: sqrt(alpha * alpha + beta * beta), *** this doesn't look so great. ***
       chroma: lightness,
     };
 
@@ -427,6 +469,7 @@ class App extends React.Component {
     return ((this.state.colors[colorId].color[1] === this.state.colors[colorId].color[2]) &&
             (this.state.colors[colorId].color[1] === this.state.colors[colorId].color[3]));
   }
+  
   getGraysOnly = (colorId) => {
     // If R, G and B are the same, we can't compute hue.
     if (this.gray(colorId) === true) {
@@ -438,7 +481,7 @@ class App extends React.Component {
   monochrome = () => {
     return this.fillPalette("monochrome");
   }
-  
+
   analogous = () => {
     return this.fillPalette("analogous");
   }
@@ -457,6 +500,16 @@ class App extends React.Component {
 
   split = () => {
     return this.fillPalette("split");
+  }
+
+  // When we take the palette colors out of the grid, we should preserve grid order.
+  getColorIdsFromGrid = () => {
+    var gridColorIds = [];
+    var pOrder = this.state.paletteOrder;
+    for (var i = 0; i < pOrder.length; i++) {
+      gridColorIds = gridColorIds.concat(this.state.palettes[pOrder[i]].colorIds);
+    }
+    return gridColorIds;
   }
 
   fillPalette = (how) => {
@@ -485,11 +538,13 @@ class App extends React.Component {
         colorSchemeIdArray.push(grays[i]);
       }
     }
-    // Remove color scheme colors from main array and put them in the personal palette.
-    this.removePersonalColors(colorSchemeIdArray, sortableArray);
+    // Remove color scheme colors from the grid rows and put them in the personal palette.
+    var gridColorIds = this.getColorIdsFromGrid();
+    this.removePersonalColors(colorSchemeIdArray, gridColorIds);
 
     // Initialize a new state, copy of the old with rows refilled.
-    var newRowsState = this.refillRows(sortableArray);
+    var newRowsState = { ...this.state };
+    newRowsState = this.refillRows(newRowsState, gridColorIds);
 
     // Create a new personal palette
     var newPalette = {
