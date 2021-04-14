@@ -32,9 +32,15 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
   var twelfth = n_colors/12;
   var newPalette = [];
 
-  if (how === "analogous") {
-    // Make a little array out of the seven nearest neighbors to startIndex.
+  if (how === "monochrome") {
     var startColors = getNearestNeighbors(startIndex-4, 9, hueChromaArray);
+    for (var mi = 0; mi < 9; mi++) {
+      newPalette.push(startColors[mi].colorId);
+    }
+  }
+  else if (how === "analogous") {
+    // Make a little array out of the seven nearest neighbors to startIndex.
+    startColors = getNearestNeighbors(startIndex-4, 9, hueChromaArray);
     // Find the index of start color in the little array
     var littleIndex = startColors.indexOf(startHueChroma);
 

@@ -435,6 +435,10 @@ class App extends React.Component {
     return [];
   }
 
+  monochrome = () => {
+    return this.fillPalette("monochrome");
+  }
+  
   analogous = () => {
     return this.fillPalette("analogous");
   }
@@ -529,6 +533,9 @@ class App extends React.Component {
           />
           { this.state.palettes['personal'].colorIds.length===1 &&
               <div className="ButtonRow">
+                <button className="SortButton" onClick={this.monochrome}>
+                  Monochromatic
+                </button>
                 <button className="SortButton" onClick={this.analogous}>
                   Analogous
                 </button>
