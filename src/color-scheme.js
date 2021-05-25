@@ -12,9 +12,8 @@ function getNearestNeighbors(startIndex, number, colorArray) {
     var color_i = i % n_colors;
     subsetArray.push(colorArray[color_i]);
   }
-  // Sort this subset of similar hues by chroma.
-  // For now using lightness instead of chroma, so switch a and b.
-  subsetArray.sort((a, b) => b.chroma - a.chroma);
+  // Sort light to dark - light is > dark.
+  subsetArray.sort((a, b) => b.lightness - a.lightness);
   return subsetArray;
 }
 
@@ -23,7 +22,10 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
 // First sort hueChromaArray by hue. Add the start one to the array first.
 
   hueChromaArray.push(startHueChroma);
-  hueChromaArray.sort((a, b) => b.hue - a.hue);
+  if (how === "rainbow")
+    hueChromaArray.sort((a,b) => b.chroma - a.chroma);
+  else
+    hueChromaArray.sort((a,b) => b.hue - a.hue);
 
   // Find where the start color is in the hue order.
   var startIndex = hueChromaArray.indexOf(startHueChroma);
@@ -116,6 +118,16 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
     newPalette = [friend1Colors[i0].colorId, friend1Colors[i0 + 3].colorId, friend1Colors[i0 + 6].colorId,
                   startColors[i0].colorId, startColors[i0 + 3].colorId, startColors[i0 + 6].colorId,
                   friend2Colors[i0].colorId, friend2Colors[i0 + 3].colorId, friend2Colors[i0 + 6].colorId];
+  }
+  else if (how === "rainbow") {
+    var rainbowStart = startIndex - 12;
+    if (rainbowStart < 0) rainbowStart = 0;
+    else if (rainbowStart > n_colors-25) rainbowStart = n_colors-25;
+    startColors = getNearestNeighbors(rainbowStart, 24, hueChromaArray);
+    startColors.sort((a,b) => b.hue - a.hue);
+    for (var ri = 0; ri < 12; ri++) {
+      newPalette.push(startColors[2*ri].colorId);
+    }
   }
   return newPalette;
 }

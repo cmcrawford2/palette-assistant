@@ -453,13 +453,12 @@ class App extends React.Component {
     if (red === green && red === blue) return [];
     var alpha = 0.5 * (2 * red - green - blue);
     var beta = sqrt(3) * 0.5 * (green - blue);
-    var lightness = this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue;
     
     var hueChroma = {
       colorId: colorRGB.id,
       hue: atan2(alpha, beta),
-      //chroma: sqrt(alpha * alpha + beta * beta), *** this doesn't look so great. ***
-      chroma: lightness,
+      chroma: sqrt(alpha * alpha + beta * beta),
+      lightness: this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue,
     };
 
     return [hueChroma];
@@ -500,6 +499,10 @@ class App extends React.Component {
 
   split = () => {
     return this.fillPalette("split");
+  }
+
+  rainbow = () => {
+    return this.fillPalette("rainbow");
   }
 
   // When we take the palette colors out of the grid, we should preserve grid order.
@@ -575,7 +578,7 @@ class App extends React.Component {
           <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
           <h3>When you have chosen one color, you will have to option to compute a palette.</h3>
           <h3>Or, sort and rearrange the color chips in the main section.</h3>
-          <h3>If you select some text and drag the cursor across the palette, most browsers will copy it to clipboard.</h3> 
+          <h3>Most browsers will copy the palette to the clipboard, if you select it.</h3> 
         </div>
       </header>
       <div>
@@ -605,6 +608,9 @@ class App extends React.Component {
                 </button>
                 <button className="SortButton" onClick={this.split}>
                   Split Complementary
+                </button>
+                <button className="SortButton" onClick={this.rainbow}>
+                  Rainbow
                 </button>
               </div>
           }
