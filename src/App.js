@@ -5,6 +5,8 @@ import Palette from './palette.js'
 import Recomputed from './recomputed.js'
 import computeNewWeights from './compute-weights.js'
 import getColorScheme from './color-scheme.js'
+import matchPaletteColors from './match-palette.js'
+import expandPaletteColors from './expand-palette.js'
 import "./style.css";
 import { atan2 } from "mathjs";
 import { sqrt } from "mathjs";
@@ -461,6 +463,7 @@ class App extends React.Component {
       lightness: this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue,
     };
 
+    // TODO: Understand why I have to return an array.
     return [hueChroma];
   }
 
@@ -505,6 +508,69 @@ class App extends React.Component {
     return this.fillPalette("rainbow");
   }
 
+  matchColors = () => {
+    // Let's not add another bunch of stuff to fillPalette.
+    // Separate grays and colors.
+    const colors = [];
+    const grays = [];
+    this.state.palettes['personal'].colorIds.forEach(colorId => {
+      if (this.gray(colorId))
+        grays.push(colorId);
+      else
+        colors.push(colorId);
+    });
+    let colorSchemeIdArray = [];
+    var sortableArray = this.getSortableArray();
+    if (colors.length > 0) {
+      // Get hue+chroma for start colors
+      const startHueChroma = [];
+      // Somehow it's a problem that transformRGBtoHueChroma returns [hueChroma] here
+      // But the rest of the code doesn'n\t work when it returns hueChroma not in bracekets.
+      // Maybe it's the use of flatMap. I could be using filter.
+      colors.forEach(colorId => startHueChroma.push(this.transformRGBtoHueChroma(colorId)[0]));
+      // Get hue+chroma from the big grid
+      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
+      colorSchemeIdArray = matchPaletteColors(startHueChroma, hueChromaArray);
+    }
+    if (grays.length > 0) {
+      // Just add a bunch of grays.
+      const grayIds = this.getSomeGrays(grays[0], sortableArray);
+      grayIds.forEach(grayId => colorSchemeIdArray.push(grayId));
+      // TODO: We might have more than nine colors now.
+    }
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+
+  addOneColor = () => {
+    // Let's not add another bunch of stuff to fillPalette.
+    // Separate grays and colors.
+    const colors = [];
+    const grays = [];
+    this.state.palettes['personal'].colorIds.forEach(colorId => {
+      if (this.gray(colorId))
+        grays.push(colorId);
+      else
+        colors.push(colorId);
+    });
+    let colorSchemeIdArray = [];
+    var sortableArray = this.getSortableArray();
+    if (colors.length > 0) {
+      // Get hue+chroma for start colors
+      const startHueChroma = [];
+      colors.forEach(colorId => startHueChroma.push(this.transformRGBtoHueChroma(colorId)[0]));
+      // Get hue+chroma from the big grid
+      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
+      colorSchemeIdArray = expandPaletteColors(startHueChroma, hueChromaArray);
+    }
+    // TODO: We will have more than nine colors if we add gray here.
+    if (grays.length > 0) {
+      // Just add a bunch of grays.
+      const grayIds = this.getSomeGrays(grays[0], sortableArray);
+      grayIds.forEach(grayId => colorSchemeIdArray.push(grayId));
+    }
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+
   // When we take the palette colors out of the grid, we should preserve grid order.
   getColorIdsFromGrid = () => {
     var gridColorIds = [];
@@ -515,35 +581,47 @@ class App extends React.Component {
     return gridColorIds;
   }
 
+  getSomeGrays = (startColorId, sortableArray) => {
+      // just get gray and sort by lightness.
+      var grays = sortableArray.flatMap(this.getGraysOnly);
+      // Append the start id - sortable is only main grid.
+      grays.push(startColorId);
+      grays.sort(this.compareWeighted);
+      const colorSchemeIdArray = [];
+      var oddEven = grays.indexOf(startColorId) % 2;
+      for (var i = 0; i < grays.length; i++) {
+        if ((i+oddEven) % 2 === 0)
+        colorSchemeIdArray.push(grays[i]);
+      }
+      return colorSchemeIdArray;
+  }
+  /* TODO: code for match. Need to make a different function actually. */
+  
   fillPalette = (how) => {
     // Compute an analogous color scheme.
     var startColorId = this.state.palettes['personal'].colorIds[0];
     // First map the color array into an array of structures sortable by color wheel angle.
     var sortableArray = this.getSortableArray();
 
+    // Better check for gray first. Can't compute hueChroma for gray.
     if (this.gray(startColorId) === false) {
       var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
       var startHueChroma = this.transformRGBtoHueChroma(startColorId);
-      // Better check for gray first.
       var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
       // colorSchemeArray contains ids of colors that match according to "how."
     }
     else {
-      // just get gray and sort by lightness.
-      var grays = sortableArray.flatMap(this.getGraysOnly);
-      // Append the start id - sortable is only main grid.
-      grays.push(startColorId);
-      grays.sort(this.compareWeighted);
-      colorSchemeIdArray = [];
-      var oddEven = grays.indexOf(startColorId) % 2;
-      for (var i = 0; i < grays.length; i++) {
-        if ((i+oddEven) % 2 === 0)
-        colorSchemeIdArray.push(grays[i]);
-      }
+      colorSchemeIdArray = this.getSomeGrays(startColorId, sortableArray);
     }
+
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+  
+  updateWithNewScheme = (newPersonalPaletteIds) => {
+
     // Remove color scheme colors from the grid rows and put them in the personal palette.
     var gridColorIds = this.getColorIdsFromGrid();
-    this.removePersonalColors(colorSchemeIdArray, gridColorIds);
+    this.removePersonalColors(newPersonalPaletteIds, gridColorIds);
 
     // Initialize a new state, copy of the old with rows refilled.
     var newRowsState = { ...this.state };
@@ -552,7 +630,7 @@ class App extends React.Component {
     // Create a new personal palette
     var newPalette = {
       ...newRowsState.palettes['personal'],
-      colorIds: colorSchemeIdArray,
+      colorIds: newPersonalPaletteIds,
     };
 
     // Final new state has the diminshed rows and filled personal palette.
@@ -565,7 +643,27 @@ class App extends React.Component {
     }
     this.setState(newState);
   }
+
+  // Clear the personal palette. Put the colors from it into the first row.
   
+  clearPersonalPalette = () => {
+    // Concatenate all the grid colors.
+    const gridColorIds = this.getColorIdsFromGrid();
+    // Prepend personal palette to grid ids
+    const allColorIds = this.state.palettes["personal"].colorIds.concat(gridColorIds);
+    console.log(allColorIds);
+    var newState = { ...this.state };
+    var newPalette = {
+      ...newState.palettes['personal'],
+      colorIds: [],
+    };
+    newState.palettes[newPalette.id] = newPalette;
+    newState = this.refillRows(newState, allColorIds);
+    newState.sortedMode = false;
+    newState.recomputed = false;
+    this.setState(newState);
+  }
+
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
 
@@ -576,7 +674,7 @@ class App extends React.Component {
         <h1>Personal Palette Assistant</h1>
         <div className="App-description">
           <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
-          <h3>When you have chosen one color, you will have to option to compute a palette.</h3>
+          <h3>When you have chosen one, two or three colors, you will have to option to compute a palette.</h3>
           <h3>Or, sort and rearrange the color chips in the main section.</h3>
           <h3>Most browsers will copy the palette to the clipboard, if you select it.</h3> 
         </div>
@@ -614,6 +712,35 @@ class App extends React.Component {
                 </button>
               </div>
           }
+          { this.state.palettes['personal'].colorIds.length===2 &&
+              <div className="ButtonRow">
+                <button className="SortButton" onClick={this.clearPersonalPalette}>
+                  Clear
+                </button>
+                <button className="SortButton" onClick={this.matchColors}>
+                  Two Colors
+                </button>
+                <button className="SortButton" onClick={this.addOneColor}>
+                  Three Colors
+                </button>
+              </div>
+          }
+          { this.state.palettes['personal'].colorIds.length===3 &&
+              <div className="ButtonRow">
+                <button className="SortButton" onClick={this.clearPersonalPalette}>
+                  Clear
+                </button>
+                <button className="SortButton" onClick={this.matchColors}>
+                  Three Colors
+                </button>
+              </div>
+          }
+          { this.state.palettes['personal'].colorIds.length>3 &&
+              <div className="ButtonRow">
+                <button className="SortButton" onClick={this.clearPersonalPalette}>
+                  Clear
+                </button>
+              </div> }
           <div className="SortDescriptionContainer">
             <div className="SortDescription">
               <h3>Sorted colors are grouped by predominant hue and sorted by perceived lightness.</h3>
