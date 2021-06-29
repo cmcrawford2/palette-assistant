@@ -458,8 +458,8 @@ class App extends React.Component {
     
     var hueChroma = {
       colorId: colorRGB.id,
-      hue: atan2(alpha, beta),
-      chroma: sqrt(alpha * alpha + beta * beta),
+      hue: Math.atan2(alpha, beta),
+      chroma: Math.sqrt(alpha * alpha + beta * beta),
       lightness: this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue,
     };
 

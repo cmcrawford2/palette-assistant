@@ -90,10 +90,12 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
 
   // Now that we know which colors are in the final palette, put their ids into the output.
   const newPalette = [];
+  // Recover the original order
+  startIndices.sort((a,b) => a.siIndex - b.siIndex);
 
   startIndices.forEach(startIndex => {
     // Recover the original order
-    let littleArray = littleHCArrays[startIndex.siIndex];
+    let littleArray = littleHCArrays[startIndex.hcIndex];
     for (let li = 0; li < littleArray.length; li++) {
     // littleArray.foreach(hc => {
       let hc = littleArray[li];
@@ -105,7 +107,6 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
 }
 
 // We want to return the original color in the output array.
-// TODO: actualyl code this.
 
 function swapOutNearestHC(hueChroma, littleHCArray) {
   let nearestIndex;
