@@ -95,7 +95,8 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
 
   startIndices.forEach(startIndex => {
     // Recover the original order
-    let littleArray = littleHCArrays[startIndex.hcIndex];
+    console.log({startIndex});
+    let littleArray = littleHCArrays[startIndex.siIndex];
     for (let li = 0; li < littleArray.length; li++) {
     // littleArray.foreach(hc => {
       let hc = littleArray[li];
