@@ -15,6 +15,10 @@ export default class ColorChip extends React.Component {
     return hexStr;
   }
 
+  toggleChipPalette = () => {
+    this.props.togglePalette(this.props.color.id);
+  }
+
   render() {
     var colorName = this.props.color.color[0];
     var r = this.props.color.color[1]
@@ -32,7 +36,7 @@ export default class ColorChip extends React.Component {
     if (0.299 * r + 0.587 * g + 0.114 * b < 100) textColor = 'white';
 
     return (
-      <div className="ColorChipContainer">
+      <div className="ColorChipContainer" onDoubleClick = {this.toggleChipPalette}>
 
         <Draggable
           draggableId={this.props.color.id}

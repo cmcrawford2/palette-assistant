@@ -8,7 +8,6 @@ import getColorScheme from './color-scheme.js'
 import matchPaletteColors from './match-palette.js'
 import expandPaletteColors from './expand-palette.js'
 import "./style.css";
-import { atan2 } from "mathjs";
 import { sqrt } from "mathjs";
 
 class App extends React.Component {
@@ -106,6 +105,48 @@ class App extends React.Component {
   }
 
 // ********** Utility functions for managing the data in state. ***********
+
+togglePalette = (color_id) => {
+  // console.log("Reached toggle function!");
+  // console.log(color_id);
+  // Move the chip with color ID from palette grid to personal palette or vice versa.
+  const paletteArray = [...this.state.palettes['personal'].colorIds];
+  const gridColorArray = this.getColorIdsFromGrid();
+  let personal_index = paletteArray.indexOf(color_id);
+  if (personal_index >= 0) {
+    // Put the personal palette chip back into the grid
+    paletteArray.splice(personal_index, 1);
+    // Prepend to grid colors
+    gridColorArray.unshift(color_id);
+  }
+  else {
+    personal_index = gridColorArray.indexOf(color_id);
+    if (personal_index >= 0) {
+      gridColorArray.splice(personal_index, 1);
+      // Append to personal palette
+      paletteArray.push(color_id);
+    }
+  }
+  // Refill the grid rows into a temporary copy of state.
+  var toggledState = { ...this.state };
+  toggledState = this.refillRows(toggledState, gridColorArray);
+  
+  // Create a new personal palette
+  var newPalette = {
+    ...toggledState.palettes['personal'],
+    colorIds: paletteArray,
+  };
+
+  // Final new state has the diminshed rows and filled personal palette.
+  var newState = {
+    ...toggledState,
+    palettes: {
+      ...toggledState.palettes,
+      [newPalette.id]: newPalette,
+    },
+  }
+  this.setState(newState);
+}
 
 // Color chips should not appear in more than one place. Drag and Drop requires all the "droppables" to have unique ids.
 // so before we reformat the grid using a button function, we need to remove any color that has been placed in the personal palette.
@@ -651,7 +692,7 @@ class App extends React.Component {
     const gridColorIds = this.getColorIdsFromGrid();
     // Prepend personal palette to grid ids
     const allColorIds = this.state.palettes["personal"].colorIds.concat(gridColorIds);
-    console.log(allColorIds);
+    // console.log(allColorIds);
     var newState = { ...this.state };
     var newPalette = {
       ...newState.palettes['personal'],
@@ -686,6 +727,7 @@ class App extends React.Component {
             key={'personal'}
             palette={this.state.palettes['personal']}
             colorArray={this.state.palettes['personal'].colorIds.map(colorId => this.state.colors[colorId])}
+            togglePalette={this.togglePalette}
           />
           { this.state.palettes['personal'].colorIds.length===1 &&
               <div className="ButtonRow">
@@ -776,7 +818,10 @@ class App extends React.Component {
           {this.state.paletteOrder.map(paletteId => {
             const palette = this.state.palettes[paletteId];
             const colorArray = palette.colorIds.map(colorId => this.state.colors[colorId]);
-            return <Palette key={palette.id} palette={palette} colorArray={colorArray} />
+            return <Palette key={palette.id}
+                            palette={palette}
+                            colorArray={colorArray}
+                            togglePalette={this.togglePalette}/>
           })}
         </DragDropContext>
       </div>

@@ -17,7 +17,7 @@ function expandPaletteColors(startHueChroma, hueChromaArray) {
   const average = (startHueChroma.length === 1) ? startIndices[0] : round(0.5 * (startIndices[0] + startIndices[1]));
   const n_HCs = allHueChromas.length;
   let opposite = round(average + 0.5 * n_HCs);
-  console.log({average, opposite, n_HCs});
+  // console.log({average, opposite, n_HCs});
 
   if (opposite < 0) opposite += n_HCs;
   else if (opposite >= n_HCs) opposite -= n_HCs;

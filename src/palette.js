@@ -18,7 +18,7 @@ export default class Palette extends React.Component {
             {...provided.droppableProps}
           >
               {this.props.colorArray.map((color, index) => {
-                return <ColorChip key={color.id} color={color} index={index} />
+                return <ColorChip key={color.id} color={color} index={index} togglePalette={this.props.togglePalette} />
               })}
 
             {provided.placeholder}
