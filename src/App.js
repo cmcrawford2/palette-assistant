@@ -9,6 +9,7 @@ import matchPaletteColors from './match-palette.js'
 import expandPaletteColors from './expand-palette.js'
 import "./style.css";
 import { sqrt } from "mathjs";
+import { sortRGB, sortCMYK, sort6 } from './sort-colors.js'
 
 class App extends React.Component {
   // Initialize the state with structures representing 147 colors, useful palettes,
@@ -107,9 +108,7 @@ class App extends React.Component {
 // ********** Utility functions for managing the data in state. ***********
 
 togglePalette = (color_id) => {
-  // console.log("Reached toggle function!");
-  // console.log(color_id);
-  // Move the chip with color ID from palette grid to personal palette or vice versa.
+  // Double click sends color chip from personal palette to grid and vice versa.
   const paletteArray = [...this.state.palettes['personal'].colorIds];
   const gridColorArray = this.getColorIdsFromGrid();
   let personal_index = paletteArray.indexOf(color_id);
@@ -137,7 +136,6 @@ togglePalette = (color_id) => {
     colorIds: paletteArray,
   };
 
-  // Final new state has the diminshed rows and filled personal palette.
   var newState = {
     ...toggledState,
     palettes: {
@@ -151,12 +149,12 @@ togglePalette = (color_id) => {
 // Color chips should not appear in more than one place. Drag and Drop requires all the "droppables" to have unique ids.
 // so before we reformat the grid using a button function, we need to remove any color that has been placed in the personal palette.
 
-  removePersonalColors = (personalIds, colorIds) => {
+  removeColorsFromArray = (removeIds, colorIds) => {
     // Remove any chips that are in the personal palette.
-    if (personalIds.length > 0) {
-      for (var i = 0; i < personalIds.length; i++) {
+    if (removeIds.length > 0) {
+      for (var i = 0; i < removeIds.length; i++) {
         // remove this id from the colorIds array.
-        var c_i = colorIds.indexOf(personalIds[i]);
+        var c_i = colorIds.indexOf(removeIds[i]);
         if (c_i >= 0)
           colorIds.splice(c_i, 1);
       }
@@ -291,158 +289,23 @@ togglePalette = (color_id) => {
             this.state.bWeight * (color2.color[3] - color1.color[3]));
   }
 
-  getSortableArray = () => {
-    // main and random palettes are actually never touched. They contain 147 HTML ids and 100 random ids.
-    // The ids do not change and in the case of HTML, neither do the colors.
-    // When randomMode is true, 100 random colors corresponding to the ids have already been initialized.
-    var colorIds = [];
-    if (this.state.randomMode === false)
-      colorIds = this.state.palettes["main"].colorIds.slice();
-    else
-      colorIds = this.state.palettes["random"].colorIds.slice();
-    this.removePersonalColors(this.state.palettes["personal"].colorIds, colorIds);
-    return colorIds;
-  }
-
-  sortRGB = () => {
-    var grays = [];
-    var reds = [];
-    var greens = [];
-    var blues = [];
-    var colorIds = this.getSortableArray();
-
-    for (var i = 0; i < colorIds.length; i++) {
-      var colorId = colorIds[i];
-      var colorChip = this.state.colors[colorId];
-      var r = colorChip.color[1];
-      var g = colorChip.color[2];
-      var b = colorChip.color[3];
-      if (r === g && r === b) {
-        grays.push(colorId);
-      }
-      else if (r >= g && r > b) {
-        reds.push(colorId);
-      }
-      else if (g >= b && g > r) {
-        greens.push(colorId);
-      }
-      else { // b >= r && b > g
-        blues.push(colorId);
-      }
-    }
-    grays.sort(this.compareWeighted);
-    reds.sort(this.compareWeighted);
-    greens.sort(this.compareWeighted);
-    blues.sort(this.compareWeighted);
-
-    // Order of the new display is r, g, b, gray.
+  sort = (sortByGroup) => {
+    // SortByGroup function subdivides by color group before sorting.
+    // Can by by RGB, CMYK, or both (sort6).
+    var colorIds = this.getColorIdsFromGrid();
+    var sortedIds = sortByGroup(this.state.colors, colorIds, this.compareWeighted);
     var newState = { ...this.state };
-    newState = this.refillRows(newState, reds.concat(greens, blues, grays));
-    newState.sortedMode = false;
-    newState.recomputed = false;
-    this.setState(newState);
-  }
-
-  sortCMYK = () => {
-    var cyans = [];
-    var magentas = [];
-    var yellows = [];
-    var grays = [];
-    var colorIds = this.getSortableArray();
-
-    for (var i = 0; i < colorIds.length; i++) {
-      var colorId = colorIds[i];
-      var colorChip = this.state.colors[colorId];
-      var r = colorChip.color[1];
-      var g = colorChip.color[2];
-      var b = colorChip.color[3];
-      if (r === g && r === b) {
-        grays.push(colorId);
-      }
-      else if (r < g && r <= b) {
-        cyans.push(colorId);
-      }
-      else if (g <= b && g <= r) {
-        magentas.push(colorId);
-      }
-      else { // b < r && b < g
-        yellows.push(colorId);
-      }
-    }
-    grays.sort(this.compareWeighted);
-    cyans.sort(this.compareWeighted);
-    magentas.sort(this.compareWeighted);
-    yellows.sort(this.compareWeighted);
-
-    // Order of the new display is cyan, magenta, yellow, gray.
-    var newState = { ...this.state };
-    newState = this.refillRows(newState, cyans.concat(magentas, yellows, grays));
-    newState.sortedMode = false;
-    newState.recomputed = false;
-    this.setState(newState);
-  }
-
-  sort6 = () => {
-    var reds = [];
-    var greens = [];
-    var blues = [];
-    var cyans = [];
-    var magentas = [];
-    var yellows = [];
-    var grays = [];
-    var colorIds = this.getSortableArray();
-
-    for (var i = 0; i < colorIds.length; i++) {
-      var colorId = colorIds[i];
-      var colorChip = this.state.colors[colorId];
-      // Take out the darkest value to sort into buckets.
-      var darkest = Math.min(colorChip.color[1], colorChip.color[2], colorChip.color[3]);
-      var r = colorChip.color[1] - darkest;
-      var g = colorChip.color[2] - darkest;
-      var b = colorChip.color[3] - darkest;
-      if (r === g && r === b) {
-        grays.push(colorId);
-      }
-      else if (r >= 2*b && r >= 2*g) {
-        reds.push(colorId);
-      }
-      else if (b >= 2*g && b >= 2*r) {
-        blues.push(colorId);
-      }
-      else if (g >= 2*r && g >= 2*b) {
-        greens.push(colorId);
-      }
-      else if (r > b && g > b && r < 2*g && g < 2*r) {
-        yellows.push(colorId);
-      }
-      else if (b > g && r > g && b < 2*r && r < 2*b) {
-        magentas.push(colorId);
-      }
-      else if (g > r && b > r && g < 2*b && b < 2*g) {
-        cyans.push(colorId);
-      }
-    }
-    reds.sort(this.compareWeighted);
-    greens.sort(this.compareWeighted);
-    blues.sort(this.compareWeighted);
-    cyans.sort(this.compareWeighted);
-    magentas.sort(this.compareWeighted);
-    yellows.sort(this.compareWeighted);
-    grays.sort(this.compareWeighted);
-
-    // Order of the new display is R Y G C B M K
-    var newState = { ...this.state };
-    newState = this.refillRows(newState, reds.concat(yellows, greens, cyans, blues, magentas, grays));
+    newState = this.refillRows(newState, sortedIds);
     newState.sortedMode = false;
     newState.recomputed = false;
     this.setState(newState);
   }
 
   sortLightToDark = () => {
-    var colorCopy = this.getSortableArray();
-    colorCopy.sort(this.compareWeighted);
+    var colorIds = this.getColorIdsFromGrid();
+    colorIds.sort(this.compareWeighted);
     var newState = { ...this.state };
-    newState = this.refillRows(newState, colorCopy);
+    newState = this.refillRows(newState, colorIds);
     newState.sortedMode = true;
     newState.recomputed = false;
     this.setState(newState);
@@ -521,34 +384,6 @@ togglePalette = (color_id) => {
     return [];
   }
 
-  monochrome = () => {
-    return this.fillPalette("monochrome");
-  }
-
-  analogous = () => {
-    return this.fillPalette("analogous");
-  }
-
-  complementary = () => {
-    return this.fillPalette("complementary");
-  }
-
-  tertiary = () => {
-    return this.fillPalette("tertiary");
-  }
-
-  square = () => {
-    return this.fillPalette("square");
-  }
-
-  split = () => {
-    return this.fillPalette("split");
-  }
-
-  rainbow = () => {
-    return this.fillPalette("rainbow");
-  }
-
   matchColors = () => {
     // Let's not add another bunch of stuff to fillPalette.
     // Separate grays and colors.
@@ -561,7 +396,7 @@ togglePalette = (color_id) => {
         colors.push(colorId);
     });
     let colorSchemeIdArray = [];
-    var sortableArray = this.getSortableArray();
+    var sortableArray = this.getColorIdsFromGrid();
     if (colors.length > 0) {
       // Get hue+chroma for start colors
       const startHueChroma = [];
@@ -594,7 +429,7 @@ togglePalette = (color_id) => {
         colors.push(colorId);
     });
     let colorSchemeIdArray = [];
-    var sortableArray = this.getSortableArray();
+    var sortableArray = this.getColorIdsFromGrid();
     if (colors.length > 0) {
       // Get hue+chroma for start colors
       const startHueChroma = [];
@@ -642,7 +477,7 @@ togglePalette = (color_id) => {
     // Compute an analogous color scheme.
     var startColorId = this.state.palettes['personal'].colorIds[0];
     // First map the color array into an array of structures sortable by color wheel angle.
-    var sortableArray = this.getSortableArray();
+    var sortableArray = this.getColorIdsFromGrid();
 
     // Better check for gray first. Can't compute hueChroma for gray.
     if (this.gray(startColorId) === false) {
@@ -656,13 +491,14 @@ togglePalette = (color_id) => {
     }
 
     this.updateWithNewScheme(colorSchemeIdArray);
+    this.toggleDropdown();
   }
   
   updateWithNewScheme = (newPersonalPaletteIds) => {
 
     // Remove color scheme colors from the grid rows and put them in the personal palette.
     var gridColorIds = this.getColorIdsFromGrid();
-    this.removePersonalColors(newPersonalPaletteIds, gridColorIds);
+    this.removeColorsFromArray(newPersonalPaletteIds, gridColorIds);
 
     // Initialize a new state, copy of the old with rows refilled.
     var newRowsState = { ...this.state };
@@ -705,6 +541,10 @@ togglePalette = (color_id) => {
     this.setState(newState);
   }
 
+  toggleDropdown = () => {
+    this.setState({dropdownOn: !this.state.dropdownOn});
+  }
+
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
 
@@ -714,10 +554,9 @@ togglePalette = (color_id) => {
       <header className="App-header">
         <h1>Personal Palette Assistant</h1>
         <div className="App-description">
-          <h3>Drag and drop color chips into your personal palette (the blank space below).</h3>
-          <h3>When you have chosen one, two or three colors, you will have to option to compute a palette.</h3>
-          <h3>Or, sort and rearrange the color chips in the main section.</h3>
-          <h3>Most browsers will copy the palette to the clipboard, if you select it.</h3> 
+          <h3>Double click or drag a chip to move colors between the grid and the palette.</h3>
+          <h3>When there are one, two or three colors in the palette, you can expand the palette.</h3>
+          <h3>Copy the palette to the clipboard to save it.</h3> 
         </div>
       </header>
       <div>
@@ -730,28 +569,33 @@ togglePalette = (color_id) => {
             togglePalette={this.togglePalette}
           />
           { this.state.palettes['personal'].colorIds.length===1 &&
-              <div className="ButtonRow">
-                <button className="SortButton" onClick={this.monochrome}>
-                  Monochromatic
-                </button>
-                <button className="SortButton" onClick={this.analogous}>
-                  Analogous
-                </button>
-                <button className="SortButton" onClick={this.complementary}>
-                  Complementary
-                </button>
-                <button className="SortButton" onClick={this.tertiary}>
-                  Tertiary
-                </button>
-                <button className="SortButton" onClick={this.square}>
-                  Square
-                </button>
-                <button className="SortButton" onClick={this.split}>
-                  Split Complementary
-                </button>
-                <button className="SortButton" onClick={this.rainbow}>
-                  Rainbow
-                </button>
+                <div className="ColorSchemeDropdown">
+                  <button className="ColorSchemeDropbtn" onClick={this.toggleDropdown}>
+                    Choose a Color Scheme
+                  </button>
+                  <div className="dropdown-content" style={{ display: this.state.dropdownOn ? "flex" : "none" }}>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("monochrome")}>
+                      Monochromatic
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("analogous")}>
+                      Analogous
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("complementary")}>
+                      Complementary
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("tertiary")}>
+                      Tertiary
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("square")}>
+                      Square
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("split")}>
+                      Split Complementary
+                    </button>
+                    <button className="SchemeButton" onClick={() => this.fillPalette("rainbow")}>
+                      Rainbow
+                    </button>
+                  </div>
               </div>
           }
           { this.state.palettes['personal'].colorIds.length===2 &&
@@ -785,33 +629,33 @@ togglePalette = (color_id) => {
               </div> }
           <div className="SortDescriptionContainer">
             <div className="SortDescription">
-              <h3>Sorted colors are grouped by predominant hue and sorted by perceived lightness.</h3>
-              <h3>Perceived lightness is initially computed as 0.299 red + 0.587 green + 0.114 blue.</h3>
-              <h3>If you think you can come up with a better order, move the chips around and select "Recompute" to compute new coefficients.</h3>
+              <h3>Sorted colors are grouped by hue and sorted by perceived lightness.</h3>
+              <h3>Perceived lightness is computed as 0.299 red + 0.587 green + 0.114 blue.</h3>
+              {/* <h3>If you think you can come up with a better order, move the chips around and select "Recompute" to compute new coefficients.</h3> */}
             </div>
           </div>
           <div className="ButtonRow">
-            <button className="SortButton" onClick={this.randomSet}>
-              Random
-            </button>
             <button className="SortButton" onClick={this.resetHTML}>
               Reset HTML
             </button>
-            <button className="SortButton" onClick={this.sortRGB}>
+            <button className="SortButton" onClick={this.randomSet}>
+              Reset Random
+            </button>
+            <button className="SortButton" onClick={() => this.sort(sortRGB)}>
               Sort RGB
             </button>
-            <button className="SortButton" onClick={this.sortCMYK}>
+            <button className="SortButton" onClick={() => this.sort(sortCMYK)}>
               Sort CMYK
             </button>
-            <button className="SortButton" onClick={this.sort6}>
+            <button className="SortButton" onClick={() => this.sort(sort6)}>
               Six colors
             </button>
             <button className="SortButton" onClick={this.sortLightToDark}>
               Sort Light
             </button>
-            <button className="SortButton" onClick={this.recomputeWeights}>
-              Recompute
-            </button>
+            {/* <button className="SortButton" onClick={this.recomputeWeights}> */}
+              {/* Recompute */}
+            {/* </button> */}
           </div>
           <Recomputed sorted={this.state.sortedMode} computed={this.state.recomputed} weights={this.state.newWeights}
                       rw={this.state.rWeight} gw={this.state.gWeight} bw={this.state.bWeight} />
