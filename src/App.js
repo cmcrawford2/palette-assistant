@@ -422,7 +422,7 @@ togglePalette = (color_id) => {
     this.updateWithNewScheme(colorSchemeIdArray);
   }
 
-  addOneColor = () => {
+  addColors = (nToAdd) => {
     // Let's not add another bunch of stuff to fillPalette.
     // Separate grays and colors.
     const colors = [];
@@ -441,7 +441,7 @@ togglePalette = (color_id) => {
       colors.forEach(colorId => startHueChroma.push(this.transformRGBtoHueChroma(colorId)[0]));
       // Get hue+chroma from the big grid
       var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
-      colorSchemeIdArray = expandPaletteColors(startHueChroma, hueChromaArray);
+      colorSchemeIdArray = expandPaletteColors(nToAdd, startHueChroma, hueChromaArray);
     }
     // TODO: We will have more than nine colors if we add gray here.
     if (grays.length > 0) {
@@ -650,8 +650,11 @@ togglePalette = (color_id) => {
                 <button className="SortButton" onClick={this.matchColors}>
                   Two Colors
                 </button>
-                <button className="SortButton" onClick={this.addOneColor}>
+                <button className="SortButton" onClick={() => {this.addColors(1)}}>
                   Three Colors
+                </button>
+                <button className="SortButton" onClick={() => {this.addColors(2)}}>
+                  Four Colors
                 </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear
