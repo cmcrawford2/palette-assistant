@@ -2,8 +2,6 @@ import React from "react";
 import initialData from './initial_data.js'
 import { DragDropContext } from 'react-beautiful-dnd';
 import Palette from './palette.js'
-import Recomputed from './recomputed.js'
-import computeNewWeights from './compute-weights.js'
 import getColorScheme from './color-scheme.js'
 import matchPaletteColors from './match-palette.js'
 import expandPaletteColors from './expand-palette.js'
@@ -219,11 +217,6 @@ togglePalette = (color_id) => {
     var newState = { ...this.state };
     newState.randomMode = true;
 
-    // Reinitialize sorting and recomputing logicals.
-    // Don't reset newWeights. They should persist so we can test how well they work.
-    newState.sortedMode = false;
-    newState.recomputed = false;
-
     // Use color Ids starting from 200.
     // HTML named colors use ids 1 to 147.
     var colorIds = [];
@@ -258,16 +251,10 @@ togglePalette = (color_id) => {
     // The could conceivably live outside somewhere, since "main" doesn't change.
     var colorIds = this.state.palettes["main"].colorIds.slice();
     var newState = { ...this.state };
-    newState.randomMode = false;
-    newState.sortedMode = false;
-    newState.recomputed = false;
-
     // Refill the rows and the row palette id lists.
     newState = this.refillRows(newState, colorIds);
-
     // Rest the personal palette to be empty.
     newState.palettes['personal'].colorIds = [];
-
     this.setState(newState);
   }
 
@@ -299,8 +286,6 @@ togglePalette = (color_id) => {
     var sortedIds = sortByGroup(this.state.colors, colorIds, this.compareWeighted);
     var newState = { ...this.state };
     newState = this.refillRows(newState, sortedIds);
-    newState.sortedMode = false;
-    newState.recomputed = false;
     this.setState(newState);
   }
 
@@ -309,49 +294,9 @@ togglePalette = (color_id) => {
     colorIds.sort(this.compareWeighted);
     var newState = { ...this.state };
     newState = this.refillRows(newState, colorIds);
-    newState.sortedMode = true;
-    newState.recomputed = false;
     this.setState(newState);
   }
   
-  // **************** recompute weights according to user modified sort. ************
-
-  recomputeWeights = () => {
-    // Assemble array of rbg of colors in user order.
-    // Only do this if the palette has been totally sorted.
-    // Todo: some kind of error handling that can be displayed to the user.
-    // Using all of these flags in state is very bad style.
-    // this.state.recomputed is basically only used to format an error message.
-    if (this.state.sortedMode === false) {
-      this.setState({ recomputed: true });
-      return;
-    }
-    var colorIdArray = [];
-    for (var pi = 0; pi < this.state.paletteOrder.length; pi++) {
-      var paletteColorIds = this.state.palettes[this.state.paletteOrder[pi]].colorIds;
-      for (var ci = 0; ci < paletteColorIds.length; ci++) {
-        colorIdArray.push(paletteColorIds[ci]);
-      }
-    }
-
-    var colorArray = [];
-    for (ci = 0; ci < colorIdArray.length; ci++) {
-      var color = this.state.colors[colorIdArray[ci]].color;
-      colorArray[ci] = [];
-      colorArray[ci][0] = color[1]/255;
-      colorArray[ci][1] = color[2]/255;
-      colorArray[ci][2] = color[3]/255;
-    }
-    var newWeights = computeNewWeights(colorArray);
-    var newState = { ...this.state };
-    newState.recomputed = true;
-    newState.newWeights = true;
-    newState.rWeight = newWeights[0].toFixed(3);
-    newState.gWeight = newWeights[1].toFixed(3);
-    newState.bWeight = newWeights[2].toFixed(3);
-    this.setState(newState);
-  }
-
   // ************** Palette stuff **************
 
   transformRGBtoHueChroma = (colorId) => {
@@ -559,8 +504,6 @@ togglePalette = (color_id) => {
     };
     newState.palettes[newPalette.id] = newPalette;
     newState = this.refillRows(newState, allColorIds);
-    newState.sortedMode = false;
-    newState.recomputed = false;
     this.setState(newState);
   }
 
@@ -579,8 +522,6 @@ togglePalette = (color_id) => {
     };
     newState.palettes[newPalette.id] = newPalette;
     newState = this.refillRows(newState, allColorIds);
-    newState.sortedMode = false;
-    newState.recomputed = false;
     this.setState(newState);
   }
 
@@ -683,8 +624,7 @@ togglePalette = (color_id) => {
           <div className="SortDescriptionContainer">
             <div className="SortDescription">
               <h3>Sorted colors are grouped by hue and sorted by perceived lightness.</h3>
-              <h3>Perceived lightness is computed as 0.299 red + 0.587 green + 0.114 blue.</h3>
-              {/* <h3>If you think you can come up with a better order, move the chips around and select "Recompute" to compute new coefficients.</h3> */}
+              {/* <h3>Perceived lightness is computed as 0.299 red + 0.587 green + 0.114 blue.</h3> */}
             </div>
           </div>
           <div className="DropdownWrapper">
@@ -710,13 +650,8 @@ togglePalette = (color_id) => {
               <button className="DropItem" onClick={this.sortLightToDark}>
                 Sort Light
               </button>
-              {/* <button className="SortButton" onClick={this.recomputeWeights}> */}
-                {/* Recompute */}
-              {/* </button> */}
             </div>
           </div>
-          <Recomputed sorted={this.state.sortedMode} computed={this.state.recomputed} weights={this.state.newWeights}
-                      rw={this.state.rWeight} gw={this.state.gWeight} bw={this.state.bWeight} />
           {this.state.paletteOrder.map(paletteId => {
             const palette = this.state.palettes[paletteId];
             const colorArray = palette.colorIds.map(colorId => this.state.colors[colorId]);
