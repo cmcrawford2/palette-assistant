@@ -68,8 +68,6 @@
   flex-direction: column;
   min-width: 240px;
   overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
 }
 
 .ButtonRow {
@@ -141,5 +139,9 @@
   }
   .ColorChip {
     margin: 5px;
+  }
+  .DropdownContent {
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
   }
 }

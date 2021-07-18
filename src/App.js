@@ -693,7 +693,7 @@ togglePalette = (color_id) => {
                 Reset Grid: HTML colors
               </button>
               <button className="DropItem" onClick={this.randomSet}>
-                Reset Grid: Random colors
+                Reset Grid: Randomly
               </button>
               <button className="DropItem" onClick={() => this.sort(sortRGB)}>
                 Sort RGB
