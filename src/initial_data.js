@@ -3,11 +3,15 @@ const initialData = {
   sortedMode: false,
   recomputed: false,
   newWeights: false,
+  dropdownOn: false,
 
   // Weights are from the internet.
   gWeight: 0.587,
   rWeight: 0.299,
   bWeight: 0.114,
+
+  // Backup 
+  prevPalette: [],
 
   colors: {
     'color-1': { id: 'color-1', color: ["aliceblue", 240, 248, 255] },

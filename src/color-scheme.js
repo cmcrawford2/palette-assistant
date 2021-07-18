@@ -23,7 +23,7 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
 
   hueChromaArray.push(startHueChroma);
   if (how === "rainbow")
-    hueChromaArray.sort((a,b) => b.chroma - a.chroma);
+    hueChromaArray.sort((a,b) => b.lightness - a.lightness);
   else
     hueChromaArray.sort((a,b) => b.hue - a.hue);
 
@@ -129,6 +129,7 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
       newPalette.push(startColors[2*ri].colorId);
     }
   }
+
   return newPalette;
 }
 

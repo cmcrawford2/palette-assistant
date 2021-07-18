@@ -49,6 +49,7 @@ class App extends React.Component {
           ...this.state.palettes,
           [newPalette.id]: newPalette,
         },
+        prevState: null,
       };
       this.setState(newState);
     }
@@ -272,8 +273,10 @@ togglePalette = (color_id) => {
 
   // ********** Sorting stuff ************
 
-  compareLightness = (color1, color2) => {
+  compareLightness = (colorId1, colorId2) => {
     // From wikipedia - doesn't really do it for me.
+    var color1 = this.state.colors[colorId1];
+    var color2 = this.state.colors[colorId2];
     var XMax1 = Math.max(color1.color[1], color1.color[2], color1.color[3]);
     var XMin1 = Math.min(color1.color[1], color1.color[2], color1.color[3]);
     var XMax2 = Math.max(color2.color[1], color2.color[2], color2.color[3]);
@@ -364,6 +367,8 @@ togglePalette = (color_id) => {
       colorId: colorRGB.id,
       hue: Math.atan2(alpha, beta),
       chroma: Math.sqrt(alpha * alpha + beta * beta),
+      // lightness: red+green+blue,
+      // lightness: Math.min(colorRGB.color[1], colorRGB.color[2], colorRGB.color[3]),
       lightness: this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue,
     };
 
@@ -484,10 +489,27 @@ togglePalette = (color_id) => {
       var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
       var startHueChroma = this.transformRGBtoHueChroma(startColorId);
       var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
-      // colorSchemeArray contains ids of colors that match according to "how."
     }
     else {
       colorSchemeIdArray = this.getSomeGrays(startColorId, sortableArray);
+    }
+    // If start color didn't end up in the output, replace "nearest" neighbor with it.
+    if (colorSchemeIdArray.indexOf(startColorId) === -1) {
+      console.log("finding nearest neighbor");
+      const startColor = this.state.colors[startColorId];
+      let minDist, minIndex;
+      for (let i = 0; i < colorSchemeIdArray.length; i++) {
+        let color = this.state.colors[colorSchemeIdArray[i]];
+        let distSq = (startColor.color[1] - color.color[1]) * (startColor.color[1] - color.color[1]) +
+                     (startColor.color[2] - color.color[2]) * (startColor.color[2] - color.color[2]) +
+                     (startColor.color[3] - color.color[3]) * (startColor.color[3] - color.color[3]);
+        console.log(distSq);
+        if (i === 0 || distSq < minDist) {
+          minIndex = i;
+          minDist = distSq;
+        }
+      }
+      colorSchemeIdArray[minIndex] = startColorId;
     }
 
     this.updateWithNewScheme(colorSchemeIdArray);
@@ -502,6 +524,7 @@ togglePalette = (color_id) => {
 
     // Initialize a new state, copy of the old with rows refilled.
     var newRowsState = { ...this.state };
+    newRowsState.prevPalette = [...this.state.palettes['personal'].colorIds];
     newRowsState = this.refillRows(newRowsState, gridColorIds);
 
     // Create a new personal palette
@@ -518,6 +541,28 @@ togglePalette = (color_id) => {
         [newPalette.id]: newPalette,
       },
     }
+    this.setState(newState);
+  }
+
+  // Restore stored state.
+
+  restorePrevPalette = () => {
+    // Concatenate all the grid colors.
+    const gridColorIds = this.getColorIdsFromGrid();
+    // Prepend personal palette to grid ids
+    const allColorIds = this.state.palettes["personal"].colorIds.concat(gridColorIds);
+    // Must also remove previous palette colors from grid as we are restoring it.
+    this.removeColorsFromArray(this.state.prevPalette, allColorIds);
+    var newState = { ...this.state };
+    var newPalette = {
+      ...newState.palettes['personal'],
+      colorIds: this.state.prevPalette,
+      prevPalette: [],
+    };
+    newState.palettes[newPalette.id] = newPalette;
+    newState = this.refillRows(newState, allColorIds);
+    newState.sortedMode = false;
+    newState.recomputed = false;
     this.setState(newState);
   }
 
@@ -623,6 +668,9 @@ togglePalette = (color_id) => {
           }
           { this.state.palettes['personal'].colorIds.length>3 &&
               <div className="ButtonRow">
+                <button className="SortButton" onClick={this.restorePrevPalette}>
+                  Back
+                </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear
                 </button>
