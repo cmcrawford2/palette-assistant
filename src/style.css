@@ -36,57 +36,48 @@
   color: #61dafb;
 }
 
-.ButtonRow {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  justify-content: center;
-}
-
-.ColorSchemeDropdown {
+.DropdownWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 25px;
+  margin: 25px 0;
 }
 
-.ColorSchemeDropbtn {
-  background-color: #3498DB;
-  color: white;
+.DropName {
   min-width: 240px;
-  padding: 16px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
 }
 
-.ColorSchemeDropbtn:hover {
-  background-color: #8980B9;
+.DropName, .DropItem {
+  height: 40px;
+  font-size: 18px;
+  /* font-family: "Crimson Text", serif; */
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
+.DropName {
+  background-color: darkblue;
+  color: white;
 }
 
-.dropdown-content {
-  /* Display style is set in component. */
+.DropName:hover {
+  background-color: slateblue;
+}
+
+.DropdownContent {
+  /* Display style is set in component. Either "flex" or "none." */
   flex-direction: column;
-  background-color: #f1f1f1;
   min-width: 240px;
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
 }
 
-.SchemeButton {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
+.ButtonRow {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
 }
-
-.dropdown:hover {background-color: #ddd;}
 
 .SortButton {
   font-size: 20px;
@@ -108,7 +99,6 @@
   display: flex;
   flex-direction: column;
   justify-content: left;
-  padding: 25px 0;
 }
 
 .SortDescription h3 {

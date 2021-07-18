@@ -495,7 +495,6 @@ togglePalette = (color_id) => {
     }
     // If start color didn't end up in the output, replace "nearest" neighbor with it.
     if (colorSchemeIdArray.indexOf(startColorId) === -1) {
-      console.log("finding nearest neighbor");
       const startColor = this.state.colors[startColorId];
       let minDist, minIndex;
       for (let i = 0; i < colorSchemeIdArray.length; i++) {
@@ -503,7 +502,6 @@ togglePalette = (color_id) => {
         let distSq = (startColor.color[1] - color.color[1]) * (startColor.color[1] - color.color[1]) +
                      (startColor.color[2] - color.color[2]) * (startColor.color[2] - color.color[2]) +
                      (startColor.color[3] - color.color[3]) * (startColor.color[3] - color.color[3]);
-        console.log(distSq);
         if (i === 0 || distSq < minDist) {
           minIndex = i;
           minDist = distSq;
@@ -590,6 +588,10 @@ togglePalette = (color_id) => {
     this.setState({dropdownOn: !this.state.dropdownOn});
   }
 
+  toggleGridDropdown = () => {
+    this.setState({gridDropdownOn: !this.state.gridDropdownOn});
+  }
+
   // Always render the personal palette.
   // Use the paletteOrder array to render any other palettes.
 
@@ -614,55 +616,55 @@ togglePalette = (color_id) => {
             togglePalette={this.togglePalette}
           />
           { this.state.palettes['personal'].colorIds.length===1 &&
-                <div className="ColorSchemeDropdown">
-                  <button className="ColorSchemeDropbtn" onClick={this.toggleDropdown}>
-                    Choose a Color Scheme
+              <div className="DropdownWrapper">
+                <button className="DropName" onClick={this.toggleDropdown}>
+                  Choose a Color Scheme
+                </button>
+                <div className="DropdownContent" style={{ display: this.state.dropdownOn ? "flex" : "none" }}>
+                  <button className="DropItem" onClick={() => this.fillPalette("monochrome")}>
+                    Monochromatic
                   </button>
-                  <div className="dropdown-content" style={{ display: this.state.dropdownOn ? "flex" : "none" }}>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("monochrome")}>
-                      Monochromatic
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("analogous")}>
-                      Analogous
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("complementary")}>
-                      Complementary
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("tertiary")}>
-                      Tertiary
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("square")}>
-                      Square
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("split")}>
-                      Split Complementary
-                    </button>
-                    <button className="SchemeButton" onClick={() => this.fillPalette("rainbow")}>
-                      Rainbow
-                    </button>
-                  </div>
+                  <button className="DropItem" onClick={() => this.fillPalette("analogous")}>
+                    Analogous
+                  </button>
+                  <button className="DropItem" onClick={() => this.fillPalette("complementary")}>
+                    Complementary
+                  </button>
+                  <button className="DropItem" onClick={() => this.fillPalette("tertiary")}>
+                    Tertiary
+                  </button>
+                  <button className="DropItem" onClick={() => this.fillPalette("square")}>
+                    Square
+                  </button>
+                  <button className="DropItem" onClick={() => this.fillPalette("split")}>
+                    Split Complementary
+                  </button>
+                  <button className="DropItem" onClick={() => this.fillPalette("rainbow")}>
+                    Rainbow
+                  </button>
+                </div>
               </div>
           }
           { this.state.palettes['personal'].colorIds.length===2 &&
               <div className="ButtonRow">
-                <button className="SortButton" onClick={this.clearPersonalPalette}>
-                  Clear
-                </button>
                 <button className="SortButton" onClick={this.matchColors}>
                   Two Colors
                 </button>
                 <button className="SortButton" onClick={this.addOneColor}>
                   Three Colors
                 </button>
+                <button className="SortButton" onClick={this.clearPersonalPalette}>
+                  Clear
+                </button>
               </div>
           }
           { this.state.palettes['personal'].colorIds.length===3 &&
               <div className="ButtonRow">
-                <button className="SortButton" onClick={this.clearPersonalPalette}>
-                  Clear
-                </button>
                 <button className="SortButton" onClick={this.matchColors}>
                   Three Colors
+                </button>
+                <button className="SortButton" onClick={this.clearPersonalPalette}>
+                  Clear
                 </button>
               </div>
           }
@@ -682,28 +684,33 @@ togglePalette = (color_id) => {
               {/* <h3>If you think you can come up with a better order, move the chips around and select "Recompute" to compute new coefficients.</h3> */}
             </div>
           </div>
-          <div className="ButtonRow">
-            <button className="SortButton" onClick={this.resetHTML}>
-              Reset HTML
+          <div className="DropdownWrapper">
+            <button className="DropName" onClick={this.toggleGridDropdown}>
+              Grid options
             </button>
-            <button className="SortButton" onClick={this.randomSet}>
-              Reset Random
-            </button>
-            <button className="SortButton" onClick={() => this.sort(sortRGB)}>
-              Sort RGB
-            </button>
-            <button className="SortButton" onClick={() => this.sort(sortCMYK)}>
-              Sort CMYK
-            </button>
-            <button className="SortButton" onClick={() => this.sort(sort6)}>
-              Six colors
-            </button>
-            <button className="SortButton" onClick={this.sortLightToDark}>
-              Sort Light
-            </button>
-            {/* <button className="SortButton" onClick={this.recomputeWeights}> */}
-              {/* Recompute */}
-            {/* </button> */}
+            <div className="DropdownContent" style={{ display: this.state.gridDropdownOn ? "flex" : "none" }}>
+              <button className="DropItem" onClick={this.resetHTML}>
+                Reset Grid: HTML colors
+              </button>
+              <button className="DropItem" onClick={this.randomSet}>
+                Reset Grid: Random colors
+              </button>
+              <button className="DropItem" onClick={() => this.sort(sortRGB)}>
+                Sort RGB
+              </button>
+              <button className="DropItem" onClick={() => this.sort(sortCMYK)}>
+                Sort CMYK
+              </button>
+              <button className="DropItem" onClick={() => this.sort(sort6)}>
+                Six colors
+              </button>
+              <button className="DropItem" onClick={this.sortLightToDark}>
+                Sort Light
+              </button>
+              {/* <button className="SortButton" onClick={this.recomputeWeights}> */}
+                {/* Recompute */}
+              {/* </button> */}
+            </div>
           </div>
           <Recomputed sorted={this.state.sortedMode} computed={this.state.recomputed} weights={this.state.newWeights}
                       rw={this.state.rWeight} gw={this.state.gWeight} bw={this.state.bWeight} />

@@ -4,6 +4,7 @@ const initialData = {
   recomputed: false,
   newWeights: false,
   dropdownOn: false,
+  gridDropdownOn: false,
 
   // Weights are from the internet.
   gWeight: 0.587,
