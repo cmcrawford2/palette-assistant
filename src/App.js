@@ -14,6 +14,36 @@ class App extends React.Component {
 
   state = initialData;
 
+  setNewState = (newState) => {
+    // This function is to taie a snapshot of the previous personal palette, before setting the new state.
+    // If the personal palette has changed, put the old one on the previousPalettes "stack."
+    const n1 = this.state.palettes['personal'].colorIds.length;
+    const n2 = newState.palettes['personal'].colorIds.length;
+    let oldPalette = [];
+    if (n1 !== n2) {
+      // Don't even bother comparing; they're different.
+      if (n1 !== 0) {
+        // Only save if the old palettes has something in it.
+        oldPalette = [...this.state.palettes['personal'].colorIds];
+      }
+    } else if (n1 > 0) {
+      // Maybe something to save, maybe nothing.
+      let i;
+      for (i = 0; i < n1; i++) {
+        if (this.state.palettes['personal'].colorIds[i] !== newState.palettes['personal'].colorIds[i])
+          break;
+      }
+      if (i < n1) {
+        // Found a difference; save the old palette.
+        oldPalette = [...this.state.palettes['personal']];
+      }
+    }
+    if (oldPalette.length > 0)
+      newState.previousPalettes.push(oldPalette);
+
+    this.setState(newState);
+  }
+
   // Drag and Drop Stuff
 
   onDragEnd = result => {
@@ -26,6 +56,9 @@ class App extends React.Component {
         destination.index === source.index) {
       return;
     }
+
+    let newState;
+
     if (source.droppableId === destination.droppableId) {
       var newColorIds = this.state.palettes[source.droppableId].colorIds;
       // Remove moved color
@@ -40,7 +73,7 @@ class App extends React.Component {
         ...this.state.palettes[source.droppableId],
         colorIds: newColorIds,
       };
-      const newState = {
+      newState = {
         ...this.state,
         palettes: {
           ...this.state.palettes,
@@ -48,7 +81,6 @@ class App extends React.Component {
         },
         prevState: null,
       };
-      this.setState(newState);
     }
 
     else {
@@ -70,7 +102,7 @@ class App extends React.Component {
         ...this.state.palettes[destination.droppableId],
         colorIds: toColorIds,
       }
-      const newState2 = {
+      newState = {
         ...this.state,
         palettes: {
           ...this.state.palettes,
@@ -82,25 +114,25 @@ class App extends React.Component {
       // This is because I'm stuck with fixed rows for now to make react-beautiful-dnd work.
       var pOrder = this.state.paletteOrder;
       for (var p_i = 0; p_i < pOrder.length-1; p_i++) {
-        var rowLength = newState2.palettes[pOrder[p_i]].colorIds.length;
+        var rowLength = newState.palettes[pOrder[p_i]].colorIds.length;
         if (rowLength > 10) {
           // Put the end of this row at the beginning of the next row
-          var extraId = newState2.palettes[pOrder[p_i]].colorIds.pop();
-          newState2.palettes[pOrder[p_i+1]].colorIds.unshift(extraId);
+          var extraId = newState.palettes[pOrder[p_i]].colorIds.pop();
+          newState.palettes[pOrder[p_i+1]].colorIds.unshift(extraId);
         }
         else if (rowLength < 10) {
           // Append the beginning of the next row to the end of row
-          extraId = newState2.palettes[pOrder[p_i+1]].colorIds.shift();
-          newState2.palettes[pOrder[p_i]].colorIds.push(extraId);
+          extraId = newState.palettes[pOrder[p_i+1]].colorIds.shift();
+          newState.palettes[pOrder[p_i]].colorIds.push(extraId);
           // If we emptied the last row, remove it from the display.
           if (p_i === pOrder.length-2 &&
-              newState2.palettes[pOrder[p_i+1]].colorIds.length === 0) {
-            newState2.paletteOrder.pop();
-            }
+              newState.palettes[pOrder[p_i+1]].colorIds.length === 0) {
+            newState.paletteOrder.pop();
           }
         }
-      this.setState(newState2);
+      }
     }
+    this.setNewState(newState);
   }
 
   // ********** Utility functions for managing the data in state. ***********
@@ -141,7 +173,7 @@ class App extends React.Component {
         [newPalette.id]: newPalette,
       },
     }
-    this.setState(newState);
+    this.setNewState(newState);
   }
 
   // Fill the grid rows ("palettes") with input color ids.
@@ -286,14 +318,12 @@ class App extends React.Component {
   }
 
   updateWithNewScheme = (newPersonalPaletteIds) => {
-
     // Remove color scheme colors from the grid rows and put them in the personal palette.
     var gridColorIds = this.getColorIdsFromGrid();
     this.removeColorsFromArray(newPersonalPaletteIds, gridColorIds);
 
     // Initialize a new state, copy of the old with rows refilled.
     var newRowsState = { ...this.state };
-    newRowsState.prevPalette = [...this.state.palettes['personal'].colorIds];
     newRowsState = this.refillRows(newRowsState, gridColorIds);
 
     // Create a new personal palette
@@ -310,32 +340,41 @@ class App extends React.Component {
         [newPalette.id]: newPalette,
       },
     }
-    this.setState(newState);
+    this.setNewState(newState);
   }
 
   // Restore stored state.
 
   restorePrevPalette = () => {
+    // Check for something to restore. If nothing, do nothing.
+    if (this.state.previousPalettes.length === 0)
+      return;
+    // Get the most recent palette and remove from the stack.
+    const prevPaletteIds = this.state.previousPalettes.pop();
+
     // Concatenate all the grid colors.
     const gridColorIds = this.getColorIdsFromGrid();
     // Prepend personal palette to grid ids
     const allColorIds = this.state.palettes["personal"].colorIds.concat(gridColorIds);
     // Must also remove previous palette colors from grid as we are restoring it.
-    this.removeColorsFromArray(this.state.prevPalette, allColorIds);
+    this.removeColorsFromArray(prevPaletteIds, allColorIds);
     var newState = { ...this.state };
+    newState = this.refillRows(newState, allColorIds);
+
     var newPalette = {
-      ...newState.palettes['personal'],
-      colorIds: this.state.prevPalette,
-      prevPalette: [],
+      ...this.state.palettes['personal'],
+      colorIds: prevPaletteIds,
     };
     newState.palettes[newPalette.id] = newPalette;
-    newState = this.refillRows(newState, allColorIds);
     this.setState(newState);
   }
 
   // Clear the personal palette. Put the colors from it into the first row.
   
   clearPersonalPalette = () => {
+    // Just in case we get here when it's already clear, check.
+    if (this.state.palettes['personal'].colorIds.length === 0)
+      return;
     // Concatenate all the grid colors.
     const gridColorIds = this.getColorIdsFromGrid();
     // Prepend personal palette to grid ids
@@ -348,6 +387,9 @@ class App extends React.Component {
     };
     newState.palettes[newPalette.id] = newPalette;
     newState = this.refillRows(newState, allColorIds);
+    // In this case we'll let the user go back to the previous palette.
+    const oldPaletteIds = [...this.state.palettes["personal"].colorIds];
+    newState.previousPalettes.push(oldPaletteIds);
     this.setState(newState);
   }
 
@@ -385,6 +427,9 @@ class App extends React.Component {
     // Reset the personal palette to be empty.
     newState.palettes['personal'].colorIds = [];
 
+    // Disable going back, because old palettes might have HTML colors in them.
+    newState.prevPalettes = [];
+
     this.setState(newState);
   }
 
@@ -395,10 +440,14 @@ class App extends React.Component {
     // The could conceivably live outside somewhere, since "main" doesn't change.
     var colorIds = this.state.palettes["main"].colorIds.slice();
     var newState = { ...this.state };
+    newState.randomMode = false;
     // Refill the rows and the row palette id lists.
     newState = this.refillRows(newState, colorIds);
-    // Rest the personal palette to be empty.
+    // Reset the personal palette to be empty.
     newState.palettes['personal'].colorIds = [];
+    // Disable going back, because old palettes might have random colors in them.
+    newState.prevPalettes = [];
+
     this.setState(newState);
   }
 
@@ -406,6 +455,7 @@ class App extends React.Component {
 
   compareLightness = (colorId1, colorId2) => {
     // From wikipedia - doesn't really do it for me.
+    // Leaving it here just in case.
     var color1 = this.state.colors[colorId1];
     var color2 = this.state.colors[colorId2];
     var XMax1 = Math.max(color1.color[1], color1.color[2], color1.color[3]);
@@ -418,11 +468,13 @@ class App extends React.Component {
   compareWeighted = (colorId1, colorId2) => {
     var color1 = this.state.colors[colorId1];
     var color2 = this.state.colors[colorId2];
-    const [gWeight, rWeight, bWeight] = getWeights();
+    const [rWeight, gWeight, bWeight] = getWeights();
     return (rWeight * (color2.color[1] - color1.color[1]) +
             gWeight * (color2.color[2] - color1.color[2]) +
             bWeight * (color2.color[3] - color1.color[3]));
   }
+
+  // Sort functions don't need to save old palettes because the personal palette isn't touched.
 
   sort = (sortByGroup) => {
     // SortByGroup function subdivides by color group before sorting.
@@ -514,6 +566,9 @@ class App extends React.Component {
                 <button className="SortButton" onClick={() => {this.addColors(2)}}>
                   Add Two Colors
                 </button>
+                <button className="SortButton" onClick={this.restorePrevPalette}>
+                  Back
+                </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear
                 </button>
@@ -524,6 +579,9 @@ class App extends React.Component {
               <div className="ButtonRow">
                 <button className="SortButton" onClick={this.matchColors}>
                   Expand Colors
+                </button>
+                <button className="SortButton" onClick={this.restorePrevPalette}>
+                  Back
                 </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear

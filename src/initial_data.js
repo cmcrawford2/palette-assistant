@@ -1,13 +1,10 @@
 const initialData = {
   randomMode: false,
-  sortedMode: false,
-  recomputed: false,
-  newWeights: false,
   dropdownOn: false,
   gridDropdownOn: false,
 
   // Backup 
-  prevPalette: [],
+  previousPalettes: [],
 
   colors: {
     'color-1': { id: 'color-1', color: ["aliceblue", 240, 248, 255] },

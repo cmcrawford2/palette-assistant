@@ -104,7 +104,7 @@ function getColorScheme (startHueChroma, hueChromaArray, colors, how) {
     var friend_i1 = adjustIndex(Math.round(startIndex - twelfth), n_colors);
     var friend_i2 = adjustIndex(Math.round(startIndex + twelfth), n_colors);
     const startInds = [friend_i1, startIndex, friend_i2];
-    return expandPaletteColors(4, startInds, hueChromaArray, colors);
+    return expandPaletteColors(3, startInds, hueChromaArray, colors);
   }
   else if (how === "complementary") {
     var complement_i = adjustIndex(Math.round(startIndex + n_colors/2), n_colors);
@@ -115,7 +115,7 @@ function getColorScheme (startHueChroma, hueChromaArray, colors, how) {
     friend_i1 = adjustIndex(Math.round(startIndex - 4*twelfth), n_colors);
     friend_i2 = adjustIndex(Math.round(startIndex + 4*twelfth), n_colors);
     const startInds = [friend_i1, startIndex, friend_i2];
-    return expandPaletteColors(4, startInds, hueChromaArray, colors);
+    return expandPaletteColors(3, startInds, hueChromaArray, colors);
   }
   else if (how === "square") {
     let i1 = adjustIndex(Math.round(startIndex + n_colors / 4), n_colors);
@@ -128,7 +128,7 @@ function getColorScheme (startHueChroma, hueChromaArray, colors, how) {
     let split_i1 = adjustIndex(Math.round(startIndex + n_colors / 2 - twelfth), n_colors);
     let split_i2 = adjustIndex(Math.round(startIndex + n_colors / 2 + twelfth), n_colors);
     const startInds = [split_i1, startIndex, split_i2];
-    return expandPaletteColors(4, startInds, hueChromaArray, colors);
+    return expandPaletteColors(3, startInds, hueChromaArray, colors);
   }
   else if (how === "rainbow") {
     var rainbowStart = startIndex - 12;

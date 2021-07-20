@@ -12,12 +12,12 @@ function RGBtoHex (r, g, b) {
 }
 
 function getWeights() {
-  // g r b
-  return [0.587, 0.299, 0.114];
+  // r g b
+  return [0.299, 0.587, 0.114];
 }
 
 function getLightness(colorRGB) {
-    const [gWeight, rWeight, bWeight] = getWeights();
+    const [rWeight, gWeight, bWeight] = getWeights();
     const red = colorRGB.color[1]/255;
     const green = colorRGB.color[2]/255;
     const blue = colorRGB.color[3]/255;
@@ -26,7 +26,7 @@ function getLightness(colorRGB) {
 }
 
 function RGBtoHueChroma (colorRGB) {
-  const [gWeight, rWeight, bWeight] = getWeights();
+  const [rWeight, gWeight, bWeight] = getWeights();
 
   const red = colorRGB.color[1]/255;
   const green = colorRGB.color[2]/255;
