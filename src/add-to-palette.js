@@ -3,8 +3,7 @@ import { matchPaletteColors } from "./match-palette.js";
 
 function getOpposite (index, nColors) {
   let opposite = round(index + 0.5 * nColors);
-  if (opposite < 0) opposite += nColors;
-  else if (opposite >= nColors) opposite -= nColors;
+  if (opposite >= nColors) opposite -= nColors;
   return opposite;
 }
 
@@ -28,8 +27,9 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
 
   if (nToAdd === 1) {
     let average = round(0.5 * (index0 + index1));
-    // If inputs are separated by more than n_HC/2, use average, otherwise use opposite of average.
-    // This way we get split complementary scheme with inputs being the split.
+    // This will be split complementary scheme with inputs being the split.
+    // If inputs are separated by more than n_HC/2, the complement is the average.
+    // Otherwise the complement is the opposite of the average.
     if (Math.abs(index0 - index1) < n_HCs / 2)
       average = getOpposite(average, n_HCs);
     newHueChromas = [
@@ -38,8 +38,8 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
       startHueChroma[1]
     ];
   } else {
-    // Draw the output in the order of new color that is next to 0,
-    // color 0, color 1, new color that is next to 1.
+    // Draw the output in the order of new color that is next to 0 (opposite of 1),
+    // color 0, color 1, new color that is next to 1 (opposite of 0).
     newHueChromas = [
       allHueChromas[getOpposite(index1, n_HCs)],
       startHueChroma[0],

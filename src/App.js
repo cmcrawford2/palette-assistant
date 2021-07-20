@@ -4,7 +4,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import Palette from './palette.js'
 import { getGrays, getColorScheme } from './color-scheme.js'
 import { matchPaletteColors } from './match-palette.js'
-import addPaletteColors from './expand-palette.js'
+import addPaletteColors from './add-to-palette.js'
 import { getWeights, sortRGB, sortCMYK, sort6, isGray, RGBtoHex, RGBtoHueChroma } from './sort-colors.js'
 import "./style.css";
 
