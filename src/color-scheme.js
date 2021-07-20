@@ -2,26 +2,32 @@ import { isGray, getLightness } from './sort-colors.js'
 import { expandPaletteColors } from './match-palette.js'
 
 function getGrays(n_grays, startGrays, allIds, colorArray) {
-    // get all grays and sort by lightness.
-    var grays = allIds.filter((color_id) => isGray(colorArray[color_id]));
+    // Get all grays and sort by lightness.
+    // Arbitrarily remove British English spelling.
+    // If a "grey" is a start value, it will be placed in the array at the end.
+    var grays = allIds.filter((color_id) =>
+      isGray(colorArray[color_id]) &&
+      colorArray[color_id].color[0].search("grey") === -1);
 
     grays.sort((a,b) => colorArray[b].color[1] - colorArray[a].color[1]);
-    if (grays.length < n_grays)
-      return([...grays]);
+    let grayIdArray = [];
 
-    const grayIdArray = [];
-    const interval = grays.length / n_grays;
-    for (var i = 0; i < n_grays; i++) {
-      let index = Math.round(i * interval);
-        grayIdArray.push(grays[index]);
+    if (grays.length <= n_grays)
+      grayIdArray = [...grays];
+    else {
+      // Choose a subset.
+      const interval = grays.length / n_grays;
+      for (var i = 0; i < n_grays; i++) {
+        let index = Math.round(i * interval);
+          grayIdArray.push(grays[index]);
+      }
     }
 
-    // Just add the start ones if they didn't make it in.
+    // Add the start grays if they didn't make it in.
     for (let i = 0; i < startGrays.length; i++) {
       let gray_i = startGrays[i];
       if (grayIdArray.indexOf(gray_i) === -1) {
-        grayIdArray.push(gray_i);
-        grayIdArray.sort((a,b) => colorArray[b].color[1] - colorArray[a].color[1]);
+        replaceNearestNeighbor(gray_i, grayIdArray, colorArray);
       }
     }
 
