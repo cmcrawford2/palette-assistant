@@ -6,11 +6,6 @@ const initialData = {
   dropdownOn: false,
   gridDropdownOn: false,
 
-  // Weights are from the internet.
-  gWeight: 0.587,
-  rWeight: 0.299,
-  bWeight: 0.114,
-
   // Backup 
   prevPalette: [],
 

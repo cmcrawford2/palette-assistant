@@ -2,12 +2,11 @@ import React from "react";
 import initialData from './initial_data.js'
 import { DragDropContext } from 'react-beautiful-dnd';
 import Palette from './palette.js'
-import getColorScheme from './color-scheme.js'
-import matchPaletteColors from './match-palette.js'
-import expandPaletteColors from './expand-palette.js'
+import { getGrays, getColorScheme } from './color-scheme.js'
+import { matchPaletteColors } from './match-palette.js'
+import addPaletteColors from './expand-palette.js'
+import { getWeights, sortRGB, sortCMYK, sort6, isGray, RGBtoHex, RGBtoHueChroma } from './sort-colors.js'
 import "./style.css";
-import { sqrt } from "mathjs";
-import { sortRGB, sortCMYK, sort6 } from './sort-colors.js'
 
 class App extends React.Component {
   // Initialize the state with structures representing 147 colors, useful palettes,
@@ -104,67 +103,52 @@ class App extends React.Component {
     }
   }
 
-// ********** Utility functions for managing the data in state. ***********
+  // ********** Utility functions for managing the data in state. ***********
 
-togglePalette = (color_id) => {
-  // Double click sends color chip from personal palette to grid and vice versa.
-  const paletteArray = [...this.state.palettes['personal'].colorIds];
-  const gridColorArray = this.getColorIdsFromGrid();
-  let personal_index = paletteArray.indexOf(color_id);
-  if (personal_index >= 0) {
-    // Put the personal palette chip back into the grid
-    paletteArray.splice(personal_index, 1);
-    // Prepend to grid colors
-    gridColorArray.unshift(color_id);
-  }
-  else {
-    personal_index = gridColorArray.indexOf(color_id);
+  togglePalette = (color_id) => {
+    // Double click sends color chip from personal palette to grid and vice versa.
+    const paletteArray = [...this.state.palettes['personal'].colorIds];
+    const gridColorArray = this.getColorIdsFromGrid();
+    let personal_index = paletteArray.indexOf(color_id);
     if (personal_index >= 0) {
-      gridColorArray.splice(personal_index, 1);
-      // Append to personal palette
-      paletteArray.push(color_id);
+      // Put the personal palette chip back into the grid
+      paletteArray.splice(personal_index, 1);
+      // Prepend to grid colors
+      gridColorArray.unshift(color_id);
     }
-  }
-  // Refill the grid rows into a temporary copy of state.
-  var toggledState = { ...this.state };
-  toggledState = this.refillRows(toggledState, gridColorArray);
-  
-  // Create a new personal palette
-  var newPalette = {
-    ...toggledState.palettes['personal'],
-    colorIds: paletteArray,
-  };
-
-  var newState = {
-    ...toggledState,
-    palettes: {
-      ...toggledState.palettes,
-      [newPalette.id]: newPalette,
-    },
-  }
-  this.setState(newState);
-}
-
-// Color chips should not appear in more than one place. Drag and Drop requires all the "droppables" to have unique ids.
-// so before we reformat the grid using a button function, we need to remove any color that has been placed in the personal palette.
-
-  removeColorsFromArray = (removeIds, colorIds) => {
-    // Remove any chips that are in the personal palette.
-    if (removeIds.length > 0) {
-      for (var i = 0; i < removeIds.length; i++) {
-        // remove this id from the colorIds array.
-        var c_i = colorIds.indexOf(removeIds[i]);
-        if (c_i >= 0)
-          colorIds.splice(c_i, 1);
+    else {
+      personal_index = gridColorArray.indexOf(color_id);
+      if (personal_index >= 0) {
+        gridColorArray.splice(personal_index, 1);
+        // Append to personal palette
+        paletteArray.push(color_id);
       }
     }
+    // Refill the grid rows into a temporary copy of state.
+    var toggledState = { ...this.state };
+    toggledState = this.refillRows(toggledState, gridColorArray);
+    
+    // Create a new personal palette
+    var newPalette = {
+      ...toggledState.palettes['personal'],
+      colorIds: paletteArray,
+    };
+
+    var newState = {
+      ...toggledState,
+      palettes: {
+        ...toggledState.palettes,
+        [newPalette.id]: newPalette,
+      },
+    }
+    this.setState(newState);
   }
 
-// Fill the grid rows ("palettes") with input color ids.
-// Whether random or HTML (randomMode === false) has to be properly set in the new state.
-// This should be called in two ways.
-// 1: newColorIds include all the colors, and personal palette is empty.
-// 2: Otherwise make sure before calling this that there are no colors in both personal palette and in the newColorIds array.
+  // Fill the grid rows ("palettes") with input color ids.
+  // Whether random or HTML (randomMode === false) has to be properly set in the new state.
+  // This should be called in two ways.
+  // 1: newColorIds include all the colors, and personal palette is empty.
+  // 2: Otherwise make sure before calling this that there are no colors in both personal palette and in the newColorIds array.
 
   refillRows = (newState, newColorIds) => {
     // Cannot update actual state in a loop because setState is asynchronous.
@@ -196,206 +180,7 @@ togglePalette = (color_id) => {
     return newState;
   }
 
-  toHexColor = (r, g, b) => {
-    var HexColor = "#";
-    if (r < 16) HexColor += "0";
-    HexColor += r.toString(16);
-    if (g < 16) HexColor += "0";
-    HexColor += g.toString(16);
-    if (b < 16) HexColor += "0";
-    HexColor += b.toString(16);
-    return HexColor;
-  }
-
-  // Generate a random set of colors
-  
-  randomSet = () => {
-    // This function makes a new grid of 100 random colors.
-    // It also clears the personal palette.
-
-    // Make a copy of state that we will modify directly.
-    var newState = { ...this.state };
-    newState.randomMode = true;
-
-    // Use color Ids starting from 200.
-    // HTML named colors use ids 1 to 147.
-    var colorIds = [];
-    for (var i = 0; i < 100; i++) {
-      var colorId = "color-" + (i+201).toString();
-      colorIds.push(colorId);
-    }
-
-    // Now compute 100 random colors!
-    for (i = 0; i < 100; i++) {
-      var r = Math.floor(256*Math.random());
-      var g = Math.floor(256*Math.random());
-      var b = Math.floor(256*Math.random());
-      var colorName = this.toHexColor(r, g, b);
-      const newColor = [colorName, r, g, b];
-      newState.colors[colorIds[i]].color = newColor;
-    }
-
-    // Refill the rows and the row palette id lists.
-    newState = this.refillRows(newState, colorIds);
-    
-    // Reset the personal palette to be empty.
-    newState.palettes['personal'].colorIds = [];
-
-    this.setState(newState);
-  }
-
-  // Restore the named colors in alphabetical order
-
-  resetHTML = () => {
-    // All of the HTML named color ids live in the main palette.
-    // The could conceivably live outside somewhere, since "main" doesn't change.
-    var colorIds = this.state.palettes["main"].colorIds.slice();
-    var newState = { ...this.state };
-    // Refill the rows and the row palette id lists.
-    newState = this.refillRows(newState, colorIds);
-    // Rest the personal palette to be empty.
-    newState.palettes['personal'].colorIds = [];
-    this.setState(newState);
-  }
-
-  // ********** Sorting stuff ************
-
-  compareLightness = (colorId1, colorId2) => {
-    // From wikipedia - doesn't really do it for me.
-    var color1 = this.state.colors[colorId1];
-    var color2 = this.state.colors[colorId2];
-    var XMax1 = Math.max(color1.color[1], color1.color[2], color1.color[3]);
-    var XMin1 = Math.min(color1.color[1], color1.color[2], color1.color[3]);
-    var XMax2 = Math.max(color2.color[1], color2.color[2], color2.color[3]);
-    var XMin2 = Math.min(color2.color[1], color2.color[2], color2.color[3]);
-    return (XMax2 + XMin2) - (XMax1 + XMin1);
-  }
-
-  compareWeighted = (colorId1, colorId2) => {
-    var color1 = this.state.colors[colorId1];
-    var color2 = this.state.colors[colorId2];
-    return (this.state.rWeight * (color2.color[1] - color1.color[1]) +
-            this.state.gWeight * (color2.color[2] - color1.color[2]) +
-            this.state.bWeight * (color2.color[3] - color1.color[3]));
-  }
-
-  sort = (sortByGroup) => {
-    // SortByGroup function subdivides by color group before sorting.
-    // Can by by RGB, CMYK, or both (sort6).
-    var colorIds = this.getColorIdsFromGrid();
-    var sortedIds = sortByGroup(this.state.colors, colorIds, this.compareWeighted);
-    var newState = { ...this.state };
-    newState = this.refillRows(newState, sortedIds);
-    this.setState(newState);
-  }
-
-  sortLightToDark = () => {
-    var colorIds = this.getColorIdsFromGrid();
-    colorIds.sort(this.compareWeighted);
-    var newState = { ...this.state };
-    newState = this.refillRows(newState, colorIds);
-    this.setState(newState);
-  }
-  
   // ************** Palette stuff **************
-
-  transformRGBtoHueChroma = (colorId) => {
-    var colorRGB = this.state.colors[colorId];
-    var red = colorRGB.color[1]/255;
-    var green = colorRGB.color[2]/255;
-    var blue = colorRGB.color[3]/255;
-    if (red === green && red === blue) return [];
-    var alpha = 0.5 * (2 * red - green - blue);
-    var beta = sqrt(3) * 0.5 * (green - blue);
-    
-    var hueChroma = {
-      colorId: colorRGB.id,
-      hue: Math.atan2(alpha, beta),
-      chroma: Math.sqrt(alpha * alpha + beta * beta),
-      // lightness: red+green+blue,
-      // lightness: Math.min(colorRGB.color[1], colorRGB.color[2], colorRGB.color[3]),
-      lightness: this.state.rWeight * red + this.state.gWeight * green + this.state.bWeight * blue,
-    };
-
-    // TODO: Understand why I have to return an array.
-    return [hueChroma];
-  }
-
-  gray = (colorId) => {
-    return ((this.state.colors[colorId].color[1] === this.state.colors[colorId].color[2]) &&
-            (this.state.colors[colorId].color[1] === this.state.colors[colorId].color[3]));
-  }
-  
-  getGraysOnly = (colorId) => {
-    // If R, G and B are the same, we can't compute hue.
-    if (this.gray(colorId) === true) {
-          return [colorId];
-        }
-    return [];
-  }
-
-  matchColors = () => {
-    // Let's not add another bunch of stuff to fillPalette.
-    // Separate grays and colors.
-    const colors = [];
-    const grays = [];
-    this.state.palettes['personal'].colorIds.forEach(colorId => {
-      if (this.gray(colorId))
-        grays.push(colorId);
-      else
-        colors.push(colorId);
-    });
-    let colorSchemeIdArray = [];
-    var sortableArray = this.getColorIdsFromGrid();
-    if (colors.length > 0) {
-      // Get hue+chroma for start colors
-      const startHueChroma = [];
-      // Somehow it's a problem that transformRGBtoHueChroma returns [hueChroma] here
-      // But the rest of the code doesn'n\t work when it returns hueChroma not in bracekets.
-      // Maybe it's the use of flatMap. I could be using filter.
-      colors.forEach(colorId => startHueChroma.push(this.transformRGBtoHueChroma(colorId)[0]));
-      // Get hue+chroma from the big grid
-      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
-      colorSchemeIdArray = matchPaletteColors(startHueChroma, hueChromaArray);
-    }
-    if (grays.length > 0) {
-      // Just add a bunch of grays.
-      const grayIds = this.getSomeGrays(grays[0], sortableArray);
-      grayIds.forEach(grayId => colorSchemeIdArray.push(grayId));
-      // TODO: We might have more than nine colors now.
-    }
-    this.updateWithNewScheme(colorSchemeIdArray);
-  }
-
-  addColors = (nToAdd) => {
-    // Let's not add another bunch of stuff to fillPalette.
-    // Separate grays and colors.
-    const colors = [];
-    const grays = [];
-    this.state.palettes['personal'].colorIds.forEach(colorId => {
-      if (this.gray(colorId))
-        grays.push(colorId);
-      else
-        colors.push(colorId);
-    });
-    let colorSchemeIdArray = [];
-    var sortableArray = this.getColorIdsFromGrid();
-    if (colors.length > 0) {
-      // Get hue+chroma for start colors
-      const startHueChroma = [];
-      colors.forEach(colorId => startHueChroma.push(this.transformRGBtoHueChroma(colorId)[0]));
-      // Get hue+chroma from the big grid
-      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
-      colorSchemeIdArray = expandPaletteColors(nToAdd, startHueChroma, hueChromaArray);
-    }
-    // TODO: We will have more than nine colors if we add gray here.
-    if (grays.length > 0) {
-      // Just add a bunch of grays.
-      const grayIds = this.getSomeGrays(grays[0], sortableArray);
-      grayIds.forEach(grayId => colorSchemeIdArray.push(grayId));
-    }
-    this.updateWithNewScheme(colorSchemeIdArray);
-  }
 
   // When we take the palette colors out of the grid, we should preserve grid order.
   getColorIdsFromGrid = () => {
@@ -405,60 +190,101 @@ togglePalette = (color_id) => {
       gridColorIds = gridColorIds.concat(this.state.palettes[pOrder[i]].colorIds);
     }
     return gridColorIds;
+  }  
+
+  // Color chips should not appear in more than one place. Drag and Drop requires all the "droppables" to have unique ids.
+  // so before we reformat the grid using a button function, we need to remove any color that has been placed in the personal palette.
+  removeColorsFromArray = (removeIds, colorIds) => {
+    // Remove any chips that are in the personal palette.
+    for (var i = 0; i < removeIds.length; i++) {
+      // remove this id from the colorIds array.
+      var c_i = colorIds.indexOf(removeIds[i]);
+      if (c_i >= 0)
+        colorIds.splice(c_i, 1);
+    }
   }
 
-  getSomeGrays = (startColorId, sortableArray) => {
-      // just get gray and sort by lightness.
-      var grays = sortableArray.flatMap(this.getGraysOnly);
-      // Append the start id - sortable is only main grid.
-      grays.push(startColorId);
-      grays.sort(this.compareWeighted);
-      const colorSchemeIdArray = [];
-      var oddEven = grays.indexOf(startColorId) % 2;
-      for (var i = 0; i < grays.length; i++) {
-        if ((i+oddEven) % 2 === 0)
-        colorSchemeIdArray.push(grays[i]);
-      }
-      return colorSchemeIdArray;
-  }
-  /* TODO: code for match. Need to make a different function actually. */
-  
   fillPalette = (how) => {
-    // Compute an analogous color scheme.
-    var startColorId = this.state.palettes['personal'].colorIds[0];
+    // Compute a color scheme depending on string "how."
+    const startColorId = this.state.palettes['personal'].colorIds[0];
     // First map the color array into an array of structures sortable by color wheel angle.
-    var sortableArray = this.getColorIdsFromGrid();
+    const colorIdArray = this.getColorIdsFromGrid();
 
     // Better check for gray first. Can't compute hueChroma for gray.
-    if (this.gray(startColorId) === false) {
-      var hueChromaArray = sortableArray.flatMap(this.transformRGBtoHueChroma);
-      var startHueChroma = this.transformRGBtoHueChroma(startColorId);
-      var colorSchemeIdArray = getColorScheme(startHueChroma[0], hueChromaArray, how);
+    if (!isGray(this.state.colors[startColorId])) {
+      const allColors = colorIdArray.filter(colorId => !isGray(this.state.colors[colorId]))
+      var hueChromaArray = allColors.map(color_id => RGBtoHueChroma(this.state.colors[color_id]));
+      var startHueChroma = RGBtoHueChroma(this.state.colors[startColorId]);
+      var colorSchemeIdArray = getColorScheme(startHueChroma, hueChromaArray, this.state.colors, how);
     }
     else {
-      colorSchemeIdArray = this.getSomeGrays(startColorId, sortableArray);
-    }
-    // If start color didn't end up in the output, replace "nearest" neighbor with it.
-    if (colorSchemeIdArray.indexOf(startColorId) === -1) {
-      const startColor = this.state.colors[startColorId];
-      let minDist, minIndex;
-      for (let i = 0; i < colorSchemeIdArray.length; i++) {
-        let color = this.state.colors[colorSchemeIdArray[i]];
-        let distSq = (startColor.color[1] - color.color[1]) * (startColor.color[1] - color.color[1]) +
-                     (startColor.color[2] - color.color[2]) * (startColor.color[2] - color.color[2]) +
-                     (startColor.color[3] - color.color[3]) * (startColor.color[3] - color.color[3]);
-        if (i === 0 || distSq < minDist) {
-          minIndex = i;
-          minDist = distSq;
-        }
-      }
-      colorSchemeIdArray[minIndex] = startColorId;
+      const startGrays = [];
+      startGrays.push(startColorId);
+      colorSchemeIdArray = getGrays(7, startGrays, colorIdArray.concat(startColorId), this.state.colors);
     }
 
     this.updateWithNewScheme(colorSchemeIdArray);
     this.toggleDropdown();
   }
-  
+
+  matchColors = () => {
+    // More than one color - at this time can be up to 6.
+    // Separate grays and colors.
+    const colors = [];
+    const grays = [];
+    this.state.palettes['personal'].colorIds.forEach(colorId => {
+      if (isGray(this.state.colors[colorId]))
+        grays.push(colorId);
+      else
+        colors.push(colorId);
+    });
+    const n_palette = colors.length + grays.length;
+    const n_each = (n_palette === 2) ? 4 : ((n_palette <= 4) ? 3 : 2);
+    let colorSchemeIdArray = [];
+    var colorIdArray = this.getColorIdsFromGrid();
+    if (colors.length > 0) {
+      // Get hue+chroma for start colors
+      const startHueChroma = [];
+      colors.forEach(colorId => startHueChroma.push(RGBtoHueChroma(this.state.colors[colorId])));
+      // Get hue+chroma from the big grid
+      const allColors = colorIdArray.filter(color_id => !isGray(this.state.colors[color_id]))
+      var hueChromaArray = allColors.map(color_id => RGBtoHueChroma(this.state.colors[color_id]));
+      colorSchemeIdArray = matchPaletteColors(n_each, startHueChroma, hueChromaArray, this.state.colors);
+    }
+    if (grays.length > 0) {
+      // Add three chips per gray.
+      const grayIds = getGrays(n_each * grays.length, grays, colorIdArray.concat(grays), this.state.colors);
+      grayIds.forEach(grayId => colorSchemeIdArray.push(grayId));
+    }
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+
+  addColors = (nToAdd) => {
+    // This function assumes two inputs, not gray, with one or two colors added.
+    console.table(this.state.palettes['personal']);
+    if ((this.state.palettes['personal'].colorIds.length) !== 2 || nToAdd < 1 || nToAdd > 2)
+      return;
+    const id1 = this.state.palettes['personal'].colorIds[0];
+    const id2 = this.state.palettes['personal'].colorIds[1];
+    const color1 = this.state.colors[id1];
+    const color2 = this.state.colors[id2];
+    console.log({id1, id2});
+    console.log({color1, color2});
+    // Nothing to compute if one or both colors are gray.
+    if (isGray(color1) || isGray(color2))
+      return this.matchColors();
+
+    let colorSchemeIdArray = [];
+    var colorIdArray = this.getColorIdsFromGrid();
+    // Get hue+chroma for start colors
+    const startHueChroma = [RGBtoHueChroma(color1), RGBtoHueChroma(color2)];
+    // Get hue+chroma from the big grid
+    const allColors = colorIdArray.filter(color_id => !isGray(this.state.colors[color_id]));
+    const hueChromaArray = allColors.map(color_id => RGBtoHueChroma(this.state.colors[color_id]));
+    colorSchemeIdArray = addPaletteColors(nToAdd, startHueChroma, hueChromaArray, this.state.colors);
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+
   updateWithNewScheme = (newPersonalPaletteIds) => {
 
     // Remove color scheme colors from the grid rows and put them in the personal palette.
@@ -525,6 +351,97 @@ togglePalette = (color_id) => {
     this.setState(newState);
   }
 
+  // Generate a random set of colors
+  
+  randomSet = () => {
+    // This function makes a new grid of 100 random colors.
+    // It also clears the personal palette.
+
+    // Make a copy of state that we will modify directly.
+    var newState = { ...this.state };
+    newState.randomMode = true;
+
+    // Use color Ids starting from 200.
+    // HTML named colors use ids 1 to 147.
+    var colorIds = [];
+    for (var i = 0; i < 100; i++) {
+      var colorId = "color-" + (i+201).toString();
+      colorIds.push(colorId);
+    }
+
+    // Now compute 100 random colors!
+    for (i = 0; i < 100; i++) {
+      var r = Math.floor(256*Math.random());
+      var g = Math.floor(256*Math.random());
+      var b = Math.floor(256*Math.random());
+      var colorName = RGBtoHex(r, g, b);
+      const newColor = [colorName, r, g, b];
+      newState.colors[colorIds[i]].color = newColor;
+    }
+
+    // Refill the rows and the row palette id lists.
+    newState = this.refillRows(newState, colorIds);
+    
+    // Reset the personal palette to be empty.
+    newState.palettes['personal'].colorIds = [];
+
+    this.setState(newState);
+  }
+
+  // Restore the named colors in alphabetical order
+
+  resetHTML = () => {
+    // All of the HTML named color ids live in the main palette.
+    // The could conceivably live outside somewhere, since "main" doesn't change.
+    var colorIds = this.state.palettes["main"].colorIds.slice();
+    var newState = { ...this.state };
+    // Refill the rows and the row palette id lists.
+    newState = this.refillRows(newState, colorIds);
+    // Rest the personal palette to be empty.
+    newState.palettes['personal'].colorIds = [];
+    this.setState(newState);
+  }
+
+  // ********** Sorting stuff ************
+
+  compareLightness = (colorId1, colorId2) => {
+    // From wikipedia - doesn't really do it for me.
+    var color1 = this.state.colors[colorId1];
+    var color2 = this.state.colors[colorId2];
+    var XMax1 = Math.max(color1.color[1], color1.color[2], color1.color[3]);
+    var XMin1 = Math.min(color1.color[1], color1.color[2], color1.color[3]);
+    var XMax2 = Math.max(color2.color[1], color2.color[2], color2.color[3]);
+    var XMin2 = Math.min(color2.color[1], color2.color[2], color2.color[3]);
+    return (XMax2 + XMin2) - (XMax1 + XMin1);
+  }
+
+  compareWeighted = (colorId1, colorId2) => {
+    var color1 = this.state.colors[colorId1];
+    var color2 = this.state.colors[colorId2];
+    const [gWeight, rWeight, bWeight] = getWeights();
+    return (rWeight * (color2.color[1] - color1.color[1]) +
+            gWeight * (color2.color[2] - color1.color[2]) +
+            bWeight * (color2.color[3] - color1.color[3]));
+  }
+
+  sort = (sortByGroup) => {
+    // SortByGroup function subdivides by color group before sorting.
+    // Can by by RGB, CMYK, or both (sort6).
+    var colorIds = this.getColorIdsFromGrid();
+    var sortedIds = sortByGroup(this.state.colors, colorIds, this.compareWeighted);
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, sortedIds);
+    this.setState(newState);
+  }
+
+  sortLightToDark = () => {
+    var colorIds = this.getColorIdsFromGrid();
+    colorIds.sort(this.compareWeighted);
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, colorIds);
+    this.setState(newState);
+  }
+  
   toggleDropdown = () => {
     this.setState({dropdownOn: !this.state.dropdownOn});
   }
@@ -589,30 +506,31 @@ togglePalette = (color_id) => {
           { this.state.palettes['personal'].colorIds.length===2 &&
               <div className="ButtonRow">
                 <button className="SortButton" onClick={this.matchColors}>
-                  Two Colors
+                  Expand Colors
                 </button>
                 <button className="SortButton" onClick={() => {this.addColors(1)}}>
-                  Three Colors
+                  Add One Color
                 </button>
                 <button className="SortButton" onClick={() => {this.addColors(2)}}>
-                  Four Colors
+                  Add Two Colors
                 </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear
                 </button>
               </div>
           }
-          { this.state.palettes['personal'].colorIds.length===3 &&
+          { this.state.palettes['personal'].colorIds.length >= 3 &&
+            this.state.palettes['personal'].colorIds.length <= 6 &&
               <div className="ButtonRow">
                 <button className="SortButton" onClick={this.matchColors}>
-                  Three Colors
+                  Expand Colors
                 </button>
                 <button className="SortButton" onClick={this.clearPersonalPalette}>
                   Clear
                 </button>
               </div>
           }
-          { this.state.palettes['personal'].colorIds.length>3 &&
+          { this.state.palettes['personal'].colorIds.length>6 &&
               <div className="ButtonRow">
                 <button className="SortButton" onClick={this.restorePrevPalette}>
                   Back

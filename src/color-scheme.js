@@ -1,7 +1,52 @@
-import { round } from "mathjs";
+import { isGray, getLightness } from './sort-colors.js'
+import { expandPaletteColors } from './match-palette.js'
+
+function getGrays(n_grays, startGrays, allIds, colorArray) {
+    // get all grays and sort by lightness.
+    var grays = allIds.filter((color_id) => isGray(colorArray[color_id]));
+
+    grays.sort((a,b) => colorArray[b].color[1] - colorArray[a].color[1]);
+    if (grays.length < n_grays)
+      return([...grays]);
+
+    const grayIdArray = [];
+    const interval = grays.length / n_grays;
+    for (var i = 0; i < n_grays; i++) {
+      let index = Math.round(i * interval);
+        grayIdArray.push(grays[index]);
+    }
+
+    // Just add the start ones if they didn't make it in.
+    for (let i = 0; i < startGrays.length; i++) {
+      let gray_i = startGrays[i];
+      if (grayIdArray.indexOf(gray_i) === -1) {
+        grayIdArray.push(gray_i);
+        grayIdArray.sort((a,b) => colorArray[b].color[1] - colorArray[a].color[1]);
+      }
+    }
+
+    return grayIdArray;
+}
+
+function replaceNearestNeighbor(startColorId, colorIdArray, colorArray) {
+  const startColor = colorArray[startColorId];
+  const startLightness = getLightness(startColor);
+
+  let minDist, minIndex;
+  for (let i = 0; i < colorIdArray.length; i++) {
+    let color = colorArray[colorIdArray[i]];
+    let colorLightness = getLightness(color);
+    let dist = Math.abs(startLightness - colorLightness);
+    if (i === 0 || dist < minDist) {
+      minIndex = i;
+      minDist = dist;
+    }
+  }
+  colorIdArray[minIndex] = startColorId;
+}
 
 function getNearestNeighbors(startIndex, number, colorArray) {
-  // startIndex should be negative, but startIndex + number can be > colorArray.length.
+  // startIndex could be negative, and startIndex + number could be > colorArray.length.
   // This function will adjust both cases. Similar colors may cross zero of the color wheel.
   var n_colors = colorArray.length;
   var subsetArray = [];
@@ -17,7 +62,13 @@ function getNearestNeighbors(startIndex, number, colorArray) {
   return subsetArray;
 }
 
-function getColorScheme (startHueChroma, hueChromaArray, how) {
+function adjustIndex(index, n_colors) {
+  if (index < 0) return index + n_colors;
+  if (index >= n_colors) return index - n_colors;
+  return index;
+}
+
+function getColorScheme (startHueChroma, hueChromaArray, colors, how) {
 
 // First sort hueChromaArray by hue. Add the start one to the array first.
 
@@ -41,83 +92,37 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
     }
   }
   else if (how === "analogous") {
-    // Make a little array out of the seven nearest neighbors to startIndex.
-    startColors = getNearestNeighbors(startIndex-4, 9, hueChromaArray);
-    // Find the index of start color in the little array
-    var littleIndex = startColors.indexOf(startHueChroma);
-
     // Assume the array is evenly distributed around the color wheel.
     // For analogous color scheme, divide wheel into 12 sections.
     // Make little arrays out of the two sections adjacent to startIndex.
-    var friend_i1 = round(startIndex - twelfth);
-    var friend_i2 = round(startIndex + twelfth);
-
-    var friend1Colors = getNearestNeighbors(friend_i1-4, 9, hueChromaArray);
-    var friend2Colors = getNearestNeighbors(friend_i2-4, 9, hueChromaArray);
-
-    // Get every third color out of the little arrays.
-
-    var i0 = littleIndex % 3;
-    newPalette = [friend1Colors[i0].colorId, friend1Colors[i0+3].colorId, friend1Colors[i0+6].colorId,
-                  startColors[i0].colorId, startColors[i0 + 3].colorId, startColors[i0 + 6].colorId,
-                  friend2Colors[i0].colorId, friend2Colors[i0 + 3].colorId, friend2Colors[i0 + 6].colorId];
+    var friend_i1 = adjustIndex(Math.round(startIndex - twelfth), n_colors);
+    var friend_i2 = adjustIndex(Math.round(startIndex + twelfth), n_colors);
+    const startInds = [friend_i1, startIndex, friend_i2];
+    return expandPaletteColors(4, startInds, hueChromaArray, colors);
   }
   else if (how === "complementary") {
-    startColors = getNearestNeighbors(startIndex-6, 12, hueChromaArray);
-    littleIndex = startColors.indexOf(startHueChroma);
-    var complement_i = round(startIndex + n_colors/2);
-    var complementColors = getNearestNeighbors(complement_i-6, 12, hueChromaArray);
-    i0 = littleIndex % 3;
-    newPalette = [startColors[i0].colorId, startColors[i0 + 3].colorId,
-                  startColors[i0 + 6].colorId, startColors[i0 + 9].colorId,
-                  complementColors[i0].colorId, complementColors[i0 + 3].colorId,
-                  complementColors[i0 + 6].colorId, complementColors[i0 + 9].colorId];
+    var complement_i = adjustIndex(Math.round(startIndex + n_colors/2), n_colors);
+    const startInds = [startIndex, complement_i];
+    return expandPaletteColors(4, startInds, hueChromaArray, colors);
   }
   else if (how === "tertiary") {
-    startColors = getNearestNeighbors(startIndex-4, 9, hueChromaArray);
-    littleIndex = startColors.indexOf(startHueChroma);
-    friend_i1 = round(startIndex - 4*twelfth);
-    friend_i2 = round(startIndex + 4*twelfth);
-    friend1Colors = getNearestNeighbors(friend_i1 - 4, 9, hueChromaArray);
-    friend2Colors = getNearestNeighbors(friend_i2 - 4, 9, hueChromaArray);
-
-    // Get every third color out of the little arrays.
-
-    i0 = littleIndex % 3;
-    newPalette = [friend1Colors[i0].colorId, friend1Colors[i0 + 3].colorId, friend1Colors[i0 + 6].colorId,
-                  startColors[i0].colorId, startColors[i0 + 3].colorId, startColors[i0 + 6].colorId,
-                  friend2Colors[i0].colorId, friend2Colors[i0 + 3].colorId, friend2Colors[i0 + 6].colorId];
-
+    friend_i1 = adjustIndex(Math.round(startIndex - 4*twelfth), n_colors);
+    friend_i2 = adjustIndex(Math.round(startIndex + 4*twelfth), n_colors);
+    const startInds = [friend_i1, startIndex, friend_i2];
+    return expandPaletteColors(4, startInds, hueChromaArray, colors);
   }
   else if (how === "square") {
-    startColors = getNearestNeighbors(startIndex - 3, 6, hueChromaArray);
-    littleIndex = startColors.indexOf(startHueChroma);
-    var i1 = round(startIndex + n_colors / 4);
-    var i2 = round(startIndex + n_colors / 2);
-    var i3 = round(startIndex + 3 * n_colors / 4);
-    var i1Colors = getNearestNeighbors(i1 - 3, 6, hueChromaArray);
-    var i2Colors = getNearestNeighbors(i2 - 3, 6, hueChromaArray);
-    var i3Colors = getNearestNeighbors(i3 - 3, 6, hueChromaArray);
-    i0 = littleIndex % 3;
-    newPalette = [startColors[i0].colorId, startColors[i0 + 3].colorId,
-                  i1Colors[i0].colorId, i1Colors[i0 + 3].colorId,
-                  i2Colors[i0].colorId, i2Colors[i0 + 3].colorId,
-                  i3Colors[i0].colorId, i3Colors[i0 + 3].colorId];
+    let i1 = adjustIndex(Math.round(startIndex + n_colors / 4), n_colors);
+    let i2 = adjustIndex(Math.round(startIndex + n_colors / 2), n_colors);
+    let i3 = adjustIndex(Math.round(startIndex + 3 * n_colors / 4), n_colors);
+    const startInds = [startIndex, i1, i2, i3];
+    return expandPaletteColors(3, startInds, hueChromaArray, colors);
   }
   else if (how === "split") {
-    startColors = getNearestNeighbors(startIndex - 4, 9, hueChromaArray);
-    littleIndex = startColors.indexOf(startHueChroma);
-    friend_i1 = round(startIndex + n_colors / 2 - twelfth);
-    friend_i2 = round(startIndex + n_colors / 2 + twelfth);
-    friend1Colors = getNearestNeighbors(friend_i1 - 4, 9, hueChromaArray);
-    friend2Colors = getNearestNeighbors(friend_i2 - 4, 9, hueChromaArray);
-
-    // Get every third color out of the little arrays.
-
-    i0 = littleIndex % 3;
-    newPalette = [friend1Colors[i0].colorId, friend1Colors[i0 + 3].colorId, friend1Colors[i0 + 6].colorId,
-                  startColors[i0].colorId, startColors[i0 + 3].colorId, startColors[i0 + 6].colorId,
-                  friend2Colors[i0].colorId, friend2Colors[i0 + 3].colorId, friend2Colors[i0 + 6].colorId];
+    let split_i1 = adjustIndex(Math.round(startIndex + n_colors / 2 - twelfth), n_colors);
+    let split_i2 = adjustIndex(Math.round(startIndex + n_colors / 2 + twelfth), n_colors);
+    const startInds = [split_i1, startIndex, split_i2];
+    return expandPaletteColors(4, startInds, hueChromaArray, colors);
   }
   else if (how === "rainbow") {
     var rainbowStart = startIndex - 12;
@@ -128,9 +133,23 @@ function getColorScheme (startHueChroma, hueChromaArray, how) {
     for (var ri = 0; ri < 12; ri++) {
       newPalette.push(startColors[2*ri].colorId);
     }
+    // Make sure start is in the output.
+    if (newPalette.indexOf(startHueChroma.colorId === -1)) {
+      // Have to replace according to hue, so don't call replaceNearestNeighbor.
+      let minDist, minIndex;
+      for (ri = 0; ri < 12; ri++) {
+        let hueChroma = startColors[2*ri];
+        let dist = Math.abs(startHueChroma.hue - hueChroma.hue);
+        if (ri === 0 || dist < minDist) {
+          minIndex = ri;
+          minDist = dist;
+        }
+      }
+      newPalette[minIndex] = startHueChroma.colorId;
+    }
   }
 
   return newPalette;
 }
 
-export default getColorScheme;
+export { getGrays, replaceNearestNeighbor, getColorScheme };

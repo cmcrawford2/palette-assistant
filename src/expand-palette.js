@@ -1,5 +1,5 @@
 import { round } from "mathjs";
-import matchPaletteColors from "./match-palette.js";
+import { matchPaletteColors } from "./match-palette.js";
 
 function getOpposite (index, nColors) {
   let opposite = round(index + 0.5 * nColors);
@@ -8,16 +8,10 @@ function getOpposite (index, nColors) {
   return opposite;
 }
 
-function expandPaletteColors(nToAdd, startHueChroma, hueChromaArray) {
+function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
   // Inputting nToAdd to add two colors to two existing colors.
   // May change this to make it more general. They will just be opposites.
   // First sort hueChromaArray by hue. Add the start ones to the array first.
-
-  if (startHueChroma.length !== 2) {
-    // Just expand, no basis for computing more colors.
-    // We might want to add a different default. Just not now.
-    return matchPaletteColors(startHueChroma, hueChromaArray);
-  }
 
   const allHueChromas = hueChromaArray.concat(startHueChroma);
   allHueChromas.sort((a,b) => b.hue - a.hue);
@@ -54,7 +48,7 @@ function expandPaletteColors(nToAdd, startHueChroma, hueChromaArray) {
     ];
   }
 
-  return matchPaletteColors(newHueChromas, hueChromaArray);
+  return matchPaletteColors(3, newHueChromas, hueChromaArray, colors);
 }
 
-export default expandPaletteColors;
+export default addPaletteColors;

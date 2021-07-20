@@ -1,13 +1,59 @@
-// Here are all the functions to sort the color chips.
+// Functions to sort the color chips.
 
-/*function compareLightness (color1, color2) {
-    // From wikipedia - doesn't really do it for me.
-    var XMax1 = Math.max(color1.color[1], color1.color[2], color1.color[3]);
-    var XMin1 = Math.min(color1.color[1], color1.color[2], color1.color[3]);
-    var XMax2 = Math.max(color2.color[1], color2.color[2], color2.color[3]);
-    var XMin2 = Math.min(color2.color[1], color2.color[2], color2.color[3]);
-    return (XMax2 + XMin2) - (XMax1 + XMin1);
-  }*/
+function RGBtoHex (r, g, b) {
+  var HexColor = "#";
+  if (r < 16) HexColor += "0";
+  HexColor += r.toString(16);
+  if (g < 16) HexColor += "0";
+  HexColor += g.toString(16);
+  if (b < 16) HexColor += "0";
+  HexColor += b.toString(16);
+  return HexColor;
+}
+
+function getWeights() {
+  // g r b
+  return [0.587, 0.299, 0.114];
+}
+
+function getLightness(colorRGB) {
+    const [gWeight, rWeight, bWeight] = getWeights();
+    const red = colorRGB.color[1]/255;
+    const green = colorRGB.color[2]/255;
+    const blue = colorRGB.color[3]/255;
+  
+    return rWeight * red + gWeight * green + bWeight * blue;
+}
+
+function RGBtoHueChroma (colorRGB) {
+  const [gWeight, rWeight, bWeight] = getWeights();
+
+  const red = colorRGB.color[1]/255;
+  const green = colorRGB.color[2]/255;
+  const blue = colorRGB.color[3]/255;
+
+  if (red === green && red === blue) return [];
+  
+  const alpha = 0.5 * (2 * red - green - blue);
+  const beta = Math.sqrt(3) * 0.5 * (green - blue);
+  
+  const hueChroma = {
+    colorId: colorRGB.id,
+    hue: Math.atan2(alpha, beta),
+    chroma: Math.sqrt(alpha * alpha + beta * beta),
+    // lightness: red+green+blue,
+    // lightness: Math.min(colorRGB.color[1], colorRGB.color[2], colorRGB.color[3]),
+    lightness: rWeight * red + gWeight * green + bWeight * blue,
+  };
+
+  // TODO: Understand why I have to return an array.
+  return hueChroma;
+}
+
+function isGray (color) {
+  // RGB values are in color[1:3]
+  return ((color.color[1] === color.color[2]) && (color.color[1] === color.color[3]));
+}
 
 function sortRGB (colors, colorIds, compareFunction) {
     var grays = [];
@@ -125,4 +171,4 @@ function sortRGB (colors, colorIds, compareFunction) {
     return reds.concat(yellows, greens, cyans, blues, magentas, grays);
   }
 
-  export {sortRGB, sortCMYK, sort6};
+  export {getWeights, getLightness, sortRGB, sortCMYK, sort6, RGBtoHex, RGBtoHueChroma, isGray};

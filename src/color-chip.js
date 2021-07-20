@@ -1,19 +1,9 @@
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import './style.css'
+import { RGBtoHex } from './sort-colors.js';
+import './style.css';
 
 export default class ColorChip extends React.Component {
-
-  getHex = (r,g,b) => {
-    var hexStr = "#";
-    if (r < 16) hexStr += "0";
-    hexStr += r.toString(16);
-    if (g < 16) hexStr += "0";
-    hexStr += g.toString(16);
-    if (b < 16) hexStr += "0";
-    hexStr += b.toString(16);
-    return hexStr;
-  }
 
   toggleChipPalette = () => {
     this.props.togglePalette(this.props.color.id);
@@ -29,7 +19,7 @@ export default class ColorChip extends React.Component {
       // Color name is already a hex code. Use rgb instead.
       altName = "(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
     else
-      altName = this.getHex(r, g, b);
+      altName = RGBtoHex(r, g, b);
     var textColor = 'black';
     // These weights are initially in App state, and can be reset by the user.
     // For the purpose of choosing a text color, we can keep using the initial weights.

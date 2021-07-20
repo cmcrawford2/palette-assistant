@@ -1,9 +1,6 @@
-import { round } from "mathjs";
-import { floor } from "mathjs";
-import { min } from "mathjs";
-import { max } from "mathjs";
+import { replaceNearestNeighbor } from './color-scheme.js'
 
-function matchPaletteColors(startHueChroma, hueChromaArray) {
+function matchPaletteColors(n_each, startHueChroma, hueChromaArray, colors) {
 
   // First sort hueChromaArray by hue. Add the start ones to the array first.
 
@@ -15,16 +12,18 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
   let startInds = [];
   startHueChroma.forEach((hueChroma) =>
     startInds.push(allHueChromas.indexOf(hueChroma)));
+
+  return expandPaletteColors(n_each, startInds, allHueChromas, colors);
+}
+
+function expandPaletteColors(n_each, startInds, allHueChromas, colors) {
   // Preserve input order so that output matches it.
   const inputInds = [...startInds];
 
   // Sort in numerical order to set up non-overlapping ranges.
   startInds.sort((a,b) => a - b);
-  // For each starting color, choose a range which is start hcIndex + and - some number.
-  const n_colors = startHueChroma.length;
-  // The following is just a tricky way to say: for one color, we choose 9; for 2, 4 each; and for 3 or 4, 3 each.
-  const n_range = max(3, floor(9/n_colors));
-  const offset = (n_colors === 1) ? 4 : n_range;
+  // For each starting color, choose a range which is start hcIndex +/- number of output.
+  const offset = n_each;
 
   // Overlap is complicated. Set up start and end of ranges ahead of filling up the neighbor arrays.
   // Not sure why I can't map the index to a structure.
@@ -38,7 +37,7 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
   rangeArray.forEach((range, index) => {
     if (index > 0 && range.start < rangeArray[index-1].end) {
       // Overlap!!! Average the end of previous and start of this, and adjust the ranges that overlap.
-      let newStart = round(0.5 * (range.start + rangeArray[index-1].end));
+      let newStart = Math.round(0.5 * (range.start + rangeArray[index-1].end));
       // Keep the corresponding index in the new range.
       if (newStart > startInds[index]) newStart = startInds[index];
       range.start = newStart;
@@ -48,7 +47,7 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
       if (index-1 === 0 || rangeArray[index-1].start > rangeArray[index-2].end + 1) {
         let backup = 2 * offset - (rangeArray[index-1].end - rangeArray[index-1].start);
         // Don't back up more than the gap, if there is one.
-        if (index-1 > 0) backup = min(backup, rangeArray[index-1].start - rangeArray[index-2].end - 1);
+        if (index-1 > 0) backup = Math.min(backup, rangeArray[index-1].start - rangeArray[index-2].end - 1);
         rangeArray[index-1].start -= backup;
       }
     }
@@ -57,13 +56,13 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
   // Now for each start index, we have a range of neighbors.
   // make a little hueChroma array for each start index, sort by lightness, and choose colors.
 
-  const littleHCArrays = [];
+  const littleIdArrays = [];
   const n_total_hcs = allHueChromas.length;
 
   rangeArray.forEach((range, index) => {
     // Collect all candidates for this range and sort by lightness.
     // Remember the array wraps around so start could be negative, or end could be >= n.
-    const hcRange = [];
+    let hcRange = [];
     for (let range_i = range.start; range_i <= range.end; range_i++) {
       let ri = range_i;
       if (range_i < 0) ri = range_i + n_total_hcs;
@@ -72,50 +71,27 @@ function matchPaletteColors(startHueChroma, hueChromaArray) {
     }
     hcRange.sort((a,b) => b.lightness - a.lightness);
 
-    const littleHCArray = [];
+    const littleIdArray = [];
     // Range might be smaller than the number of colors we wanted.
     const rangeSpan = range.end - range.start;
-    const maxIter = min(n_range, rangeSpan);
+    const maxIter = Math.min(n_each, rangeSpan);
     for (let hc_i = 0; hc_i < maxIter; hc_i++) {
-      let hc_index = round(hc_i * rangeSpan/maxIter);
-      littleHCArray.push(hcRange[hc_index]);
+      let hc_index = Math.round(hc_i * rangeSpan/maxIter);
+      littleIdArray.push(hcRange[hc_index].colorId);
     }
-    // Make sure that the input hueChroma is in the little array.
-    const currentHC = allHueChromas[startInds[index]];
-    if (littleHCArray.indexOf(currentHC) === -1)
-      swapOutNearestHC(currentHC, littleHCArray);
-    littleHCArrays.push(littleHCArray);
+    littleIdArrays.push(littleIdArray);
+    // If start color didn't end up in the little array, replace "nearest" neighbor with it.
+    const startColorId = allHueChromas[startInds[index]].colorId;
+    if (littleIdArray.indexOf(startColorId) === -1)
+      replaceNearestNeighbor(startColorId, littleIdArray, colors);
   });
 
-  // Now that we know which colors are in the final palette, put their ids into the output.
+  // Push the little arrays in the order of input color Ids.
+
   const newPalette = [];
+  inputInds.forEach(input_i => newPalette.push(...littleIdArrays[startInds.indexOf(input_i)]));
 
-  // Use input order for output.
-  inputInds.forEach(input_i => {
-    let start_i = startInds.indexOf(input_i);
-    let littleArray = littleHCArrays[start_i];
-    for (let li = 0; li < littleArray.length; li++) {
-      let hc = littleArray[li];
-      newPalette.push(hc.colorId);
-    };
-  });
   return newPalette;
 }
 
-// We want to return the original color in the output array.
-
-function swapOutNearestHC(hueChroma, littleHCArray) {
-  let nearestIndex;
-  let nearestDistance;
-  littleHCArray.forEach((hc, index) => {
-    let distance = Math.abs(hueChroma.lightness - hc.lightness);
-    if (index === 0 || distance < nearestDistance) {
-      nearestIndex = index;
-      nearestDistance = distance;
-    }
-  });
-
-  littleHCArray[nearestIndex] = hueChroma;
-}
-
-export default matchPaletteColors;
+export { matchPaletteColors, expandPaletteColors };
