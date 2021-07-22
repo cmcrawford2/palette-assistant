@@ -1,5 +1,5 @@
 const initialData = {
-  randomMode: false,
+  colorMode: "HTML",
   dropdownOn: false,
   gridDropdownOn: false,
 
@@ -253,7 +253,71 @@ const initialData = {
     'color-297': { id: 'color-297', color: [] },
     'color-298': { id: 'color-298', color: [] },
     'color-299': { id: 'color-299', color: [] },
-    'color-300': { id: 'color-300', color: [] }
+    'color-300': { id: 'color-300', color: [] },
+    'color-301': { id: 'color-301', color: ["Red", 237, 10, 63] },
+    'color-302': { id: 'color-302', color: ["Maroon", 195, 33, 72] },
+    'color-303': { id: 'color-303', color: ["Brick Red", 203, 65, 84] },
+    'color-304': { id: 'color-304', color: ["Indian Red", 205, 92, 92] },
+    'color-305': { id: 'color-305', color: ["Orange-Red", 255, 104, 31] },
+    'color-306': { id: 'color-306', color: ["Bittersweet", 254, 111, 94] },
+    'color-307': { id: 'color-307', color: ["Burnt Orange", 204, 85, 0] },
+    'color-308': { id: 'color-308', color: ["Red-Orange", 255, 69, 0] },
+    'color-309': { id: 'color-309', color: ["Orange", 255, 136, 51] },
+    'color-310': { id: 'color-310', color: ["Yellow-Orange", 255, 174, 66] },
+    'color-311': { id: 'color-311', color: ["Maize", 242, 198, 73] },
+    'color-312': { id: 'color-312', color: ["Orange-Yellow", 245, 189, 31] },
+    'color-313': { id: 'color-313', color: ["Goldenrod", 218, 165, 32] },
+    'color-314': { id: 'color-314', color: ["Yellow", 251, 232, 112] },
+    'color-315': { id: 'color-315', color: ["Green-Yellow", 241, 231, 136] },
+    'color-316': { id: 'color-316', color: ["Spring Green", 236, 235, 189] },
+    'color-317': { id: 'color-317', color: ["Olive Green", 181, 179, 92] },
+    'color-318': { id: 'color-318', color: ["Lemon Yellow", 255, 255, 159] },
+    'color-319': { id: 'color-319', color: ["Yellow-Green", 197, 225, 122] },
+    'color-320': { id: 'color-320', color: ["Forest Green", 95, 167, 119] },
+    'color-321': { id: 'color-321', color: ["Sea Green", 147, 223, 184] },
+    'color-322': { id: 'color-322', color: ["Green", 58, 166, 85] },
+    'color-323': { id: 'color-323', color: ["Pine Green", 1, 121, 111] },
+    'color-324': { id: 'color-324', color: ["Turquoise Blue", 108, 218, 231] },
+    'color-325': { id: 'color-325', color: ["Aquamarine", 149, 224, 232] },
+    'color-326': { id: 'color-326', color: ["Sky Blue", 118, 215, 234] },
+    'color-327': { id: 'color-327', color: ["Blue-Green", 0, 149, 183] },
+    'color-328': { id: 'color-328', color: ["Cornflower", 147, 204, 234] },
+    'color-329': { id: 'color-329', color: ["Green-Blue", 40, 135, 200] },
+    'color-330': { id: 'color-330', color: ["Navy Blue", 0, 102, 204] },
+    'color-331': { id: 'color-331', color: ["Midnight Blue", 0, 70, 140] },
+    'color-332': { id: 'color-332', color: ["Blue", 0, 102, 255] },
+    'color-333': { id: 'color-333', color: ["Cadet Blue", 169, 178, 195] },
+    'color-334': { id: 'color-334', color: ["Periwinkle", 195, 205, 230] },
+    'color-335': { id: 'color-335', color: ["Violet-Blue", 118, 110, 200] },
+    'color-336': { id: 'color-336', color: ["Blue-Violet", 100, 86, 183] },
+    'color-337': { id: 'color-337', color: ["Violet", 131, 89, 163] },
+    'color-338': { id: 'color-338', color: ["Magenta", 246, 83, 166] },
+    'color-339': { id: 'color-339', color: ["Plum", 142, 49, 121] },
+    'color-340': { id: 'color-340', color: ["Orchid", 226, 156, 210] },
+    'color-341': { id: 'color-341', color: ["Thistle", 235, 176, 215] },
+    'color-342': { id: 'color-342', color: ["Mulberry", 200, 80, 155] },
+    'color-343': { id: 'color-343', color: ["Red-Violet", 187, 51, 133] },
+    'color-344': { id: 'color-344', color: ["Lavender", 251, 174, 210] },
+    'color-345': { id: 'color-345', color: ["Carnation Pink", 255, 166, 201] },
+    'color-346': { id: 'color-346', color: ["Violet-Red", 247, 70, 138] },
+    'color-347': { id: 'color-347', color: ["Salmon", 255, 145, 164] },
+    'color-348': { id: 'color-348', color: ["Mahogany", 202, 52, 53] },
+    'color-349': { id: 'color-349', color: ["Melon", 254, 186, 173] },
+    'color-350': { id: 'color-350', color: ["Burnt Sienna", 233, 116, 81] },
+    'color-351': { id: 'color-351', color: ["Brown", 175, 89, 62] },
+    'color-352': { id: 'color-352', color: ["Sepia", 158, 91, 64] },
+    'color-353': { id: 'color-353', color: ["Raw Sienna", 210, 125, 70] },
+    'color-354': { id: 'color-354', color: ["Tan", 217, 154, 108] },
+    'color-355': { id: 'color-355', color: ["Peach", 255, 203, 164] },
+    'color-356': { id: 'color-356', color: ["Apricot", 253, 213, 177] },
+    'color-357': { id: 'color-357', color: ["Raw Umber", 130, 102, 68] },
+    'color-358': { id: 'color-358', color: ["Gold", 165, 124, 0] },
+    'color-359': { id: 'color-359', color: ["Silver", 170, 169, 173] },
+    'color-360': { id: 'color-360', color: ["Copper", 184, 115, 51] },
+    'color-361': { id: 'color-361', color: ["Black", 0, 0, 0] },
+    'color-362': { id: 'color-362', color: ["Gray", 139, 134, 128] },
+    'color-363': { id: 'color-363', color: ["Blue-Gray", 118, 128, 135] },
+    'color-364': { id: 'color-364', color: ["White", 255, 255, 255] },
   },
   palettes: {
     'personal': {
@@ -293,6 +357,17 @@ const initialData = {
         'color-271', 'color-272', 'color-273', 'color-274', 'color-275', 'color-276', 'color-277', 'color-278', 'color-279', 'color-280',
         'color-281', 'color-282', 'color-283', 'color-284', 'color-285', 'color-286', 'color-287', 'color-288', 'color-289', 'color-290',
         'color-291', 'color-292', 'color-293', 'color-294', 'color-295', 'color-296', 'color-297', 'color-298', 'color-299', 'color-300']
+    },
+    'crayola': { /* We use this for sorting - cannot wrap such a large palette and expect react-beautiful-dnd to work properly. */
+      id: 'crayola',
+      title: 'Crayola Palette',
+      colorIds: ['color-301', 'color-302', 'color-303', 'color-304', 'color-305', 'color-306', 'color-307', 'color-308', 'color-309', 'color-310',
+        'color-311', 'color-312', 'color-313', 'color-314', 'color-315', 'color-316', 'color-317', 'color-318', 'color-319', 'color-320',
+        'color-321', 'color-322', 'color-323', 'color-324', 'color-325', 'color-326', 'color-327', 'color-328', 'color-329', 'color-330',
+        'color-331', 'color-332', 'color-333', 'color-334', 'color-335', 'color-336', 'color-337', 'color-338', 'color-339', 'color-340',
+        'color-341', 'color-342', 'color-343', 'color-344', 'color-345', 'color-346', 'color-347', 'color-348', 'color-349', 'color-350',
+        'color-351', 'color-352', 'color-353', 'color-354', 'color-355', 'color-356', 'color-357', 'color-358', 'color-359', 'color-360',
+        'color-361', 'color-362', 'color-363', 'color-364']
     },
     'p1': {
       id: 'p1',
@@ -445,9 +520,44 @@ const initialData = {
       colorIds: ['color-281', 'color-282', 'color-283', 'color-284', 'color-285', 'color-286', 'color-287', 'color-288', 'color-289', 'color-290']
     },
     'p210': {
-      id: 'p210',
+      id: 'p310',
       title: 'Row 210',
       colorIds: ['color-291', 'color-292', 'color-293', 'color-294', 'color-295', 'color-296', 'color-297', 'color-298', 'color-299', 'color-300']
+    },
+    'p301': {
+      id: 'p301',
+      title: 'Row 301',
+      colorIds: ['color-301', 'color-302', 'color-303', 'color-304', 'color-305', 'color-306', 'color-307', 'color-308', 'color-309', 'color-310',]
+    },
+    'p302': {
+      id: 'p302',
+      title: 'Row 302',
+      colorIds: ['color-311', 'color-312', 'color-313', 'color-314', 'color-315', 'color-316', 'color-317', 'color-318', 'color-319', 'color-320']
+    },
+    'p303': {
+      id: 'p303',
+      title: 'Row 303',
+      colorIds: ['color-321', 'color-322', 'color-323', 'color-324', 'color-325', 'color-326', 'color-327', 'color-328', 'color-329', 'color-330']
+    },
+    'p304': {
+      id: 'p304',
+      title: 'Row 304',
+      colorIds: ['color-331', 'color-332', 'color-333', 'color-334', 'color-335', 'color-336', 'color-337', 'color-338', 'color-339', 'color-340']
+    },
+    'p305': {
+      id: 'p305',
+      title: 'Row 305',
+      colorIds: ['color-341', 'color-342', 'color-343', 'color-344', 'color-345', 'color-346', 'color-347', 'color-348', 'color-349', 'color-350']
+    },
+    'p306': {
+      id: 'p306',
+      title: 'Row 306',
+      colorIds: ['color-351', 'color-352', 'color-353', 'color-354', 'color-355', 'color-356', 'color-357', 'color-358', 'color-359', 'color-360']
+    },
+    'p307': {
+      id: 'p307',
+      title: 'Row 307',
+      colorIds: ['color-361', 'color-362', 'color-363', 'color-364']
     },
   },
   // Facilitate reordering of the columns.

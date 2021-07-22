@@ -177,7 +177,7 @@ class App extends React.Component {
   }
 
   // Fill the grid rows ("palettes") with input color ids.
-  // Whether random or HTML (randomMode === false) has to be properly set in the new state.
+  // colorMode has to be properly set in the new state.
   // This should be called in two ways.
   // 1: newColorIds include all the colors, and personal palette is empty.
   // 2: Otherwise make sure before calling this that there are no colors in both personal palette and in the newColorIds array.
@@ -189,7 +189,7 @@ class App extends React.Component {
 
     var n_p = Math.ceil(0.1 * newColorIds.length); // Number of rows, 10 color chips each plus remainder row.
 
-    var offset = (newState.randomMode === false) ? 1 : 201;
+    var offset = newState.colorMode === "HTML" ? 1 : (newState.colorMode === "random" ? 201 : 301);
 
     for (var i = 0; i < n_p; i++) {
       var colorSection = newColorIds.slice(10 * i, 10 * (i + 1));
@@ -401,7 +401,7 @@ class App extends React.Component {
 
     // Make a copy of state that we will modify directly.
     var newState = { ...this.state };
-    newState.randomMode = true;
+    newState.colorMode = "random";
 
     // Use color Ids starting from 200.
     // HTML named colors use ids 1 to 147.
@@ -435,12 +435,30 @@ class App extends React.Component {
 
   // Restore the named colors in alphabetical order
 
+  resetCrayola = () => {
+    // All of the HTML named color ids live in the main palette.
+    // The could conceivably live outside somewhere, since "main" doesn't change.
+    var colorIds = this.state.palettes["crayola"].colorIds.slice();
+    var newState = { ...this.state };
+    newState.colorMode = "Crayola";
+    // Refill the rows and the row palette id lists.
+    newState = this.refillRows(newState, colorIds);
+    // Reset the personal palette to be empty.
+    newState.palettes['personal'].colorIds = [];
+    // Disable going back, because old palettes might have random colors in them.
+    newState.prevPalettes = [];
+
+    this.setState(newState);
+  }
+
+  // Restore the named colors in alphabetical order
+
   resetHTML = () => {
     // All of the HTML named color ids live in the main palette.
     // The could conceivably live outside somewhere, since "main" doesn't change.
     var colorIds = this.state.palettes["main"].colorIds.slice();
     var newState = { ...this.state };
-    newState.randomMode = false;
+    newState.colorMode = "HTML";
     // Refill the rows and the row palette id lists.
     newState = this.refillRows(newState, colorIds);
     // Reset the personal palette to be empty.
@@ -463,6 +481,20 @@ class App extends React.Component {
     var XMax2 = Math.max(color2.color[1], color2.color[2], color2.color[3]);
     var XMin2 = Math.min(color2.color[1], color2.color[2], color2.color[3]);
     return (XMax2 + XMin2) - (XMax1 + XMin1);
+  }
+
+  compareHue = (colorId1, colorId2) => {
+    var color1 = this.state.colors[colorId1];
+    var color2 = this.state.colors[colorId2];
+    if (isGray(color1) && isGray(color2))
+      return color2.color[1] - color1.color[1];
+    else if (isGray(color1))
+      return 1;
+    else if (isGray(color2))
+      return -1;
+    var hc1 = RGBtoHueChroma(color1);
+    var hc2 = RGBtoHueChroma(color2);
+    return (hc1.hue - hc2.hue);
   }
 
   compareWeighted = (colorId1, colorId2) => {
@@ -489,6 +521,14 @@ class App extends React.Component {
   sortLightToDark = () => {
     var colorIds = this.getColorIdsFromGrid();
     colorIds.sort(this.compareWeighted);
+    var newState = { ...this.state };
+    newState = this.refillRows(newState, colorIds);
+    this.setState(newState);
+  }
+  
+  sortByHue = () => {
+    var colorIds = this.getColorIdsFromGrid();
+    colorIds.sort(this.compareHue);
     var newState = { ...this.state };
     newState = this.refillRows(newState, colorIds);
     this.setState(newState);
@@ -614,6 +654,9 @@ class App extends React.Component {
               <button className="DropItem" onClick={this.randomSet}>
                 Reset Grid: Randomly
               </button>
+              <button className="DropItem" onClick={this.resetCrayola}>
+                Reset Grid: Crayola
+              </button>
               <button className="DropItem" onClick={() => this.sort(sortRGB)}>
                 Sort RGB
               </button>
@@ -625,6 +668,9 @@ class App extends React.Component {
               </button>
               <button className="DropItem" onClick={this.sortLightToDark}>
                 Sort Light
+              </button>
+              <button className="DropItem" onClick={this.sortByHue}>
+                Sort by Hue
               </button>
             </div>
           </div>
