@@ -35,7 +35,7 @@ class App extends React.Component {
       }
       if (i < n1) {
         // Found a difference; save the old palette.
-        oldPalette = [...this.state.palettes['personal']];
+        oldPalette = [...this.state.palettes['personal'].colorIds];
       }
     }
     if (oldPalette.length > 0)
@@ -494,7 +494,7 @@ class App extends React.Component {
       return -1;
     var hc1 = RGBtoHueChroma(color1);
     var hc2 = RGBtoHueChroma(color2);
-    return (hc1.hue - hc2.hue);
+    return (hc2.hue - hc1.hue);
   }
 
   compareWeighted = (colorId1, colorId2) => {

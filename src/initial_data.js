@@ -520,7 +520,7 @@ const initialData = {
       colorIds: ['color-281', 'color-282', 'color-283', 'color-284', 'color-285', 'color-286', 'color-287', 'color-288', 'color-289', 'color-290']
     },
     'p210': {
-      id: 'p310',
+      id: 'p210',
       title: 'Row 210',
       colorIds: ['color-291', 'color-292', 'color-293', 'color-294', 'color-295', 'color-296', 'color-297', 'color-298', 'color-299', 'color-300']
     },
