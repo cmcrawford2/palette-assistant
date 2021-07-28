@@ -581,7 +581,7 @@ class App extends React.Component {
                     Complementary
                   </button>
                   <button className="DropItem" onClick={() => this.fillPalette("tertiary")}>
-                    Tertiary
+                    Triadic
                   </button>
                   <button className="DropItem" onClick={() => this.fillPalette("square")}>
                     Square
