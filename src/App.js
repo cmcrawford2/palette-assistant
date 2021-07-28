@@ -293,15 +293,13 @@ class App extends React.Component {
 
   addColors = (nToAdd) => {
     // This function assumes two inputs, not gray, with one or two colors added.
-    console.table(this.state.palettes['personal']);
+    // console.table(this.state.palettes['personal']);
     if ((this.state.palettes['personal'].colorIds.length) !== 2 || nToAdd < 1 || nToAdd > 2)
       return;
     const id1 = this.state.palettes['personal'].colorIds[0];
     const id2 = this.state.palettes['personal'].colorIds[1];
     const color1 = this.state.colors[id1];
     const color2 = this.state.colors[id2];
-    console.log({id1, id2});
-    console.log({color1, color2});
     // Nothing to compute if one or both colors are gray.
     if (isGray(color1) || isGray(color2))
       return this.matchColors();
@@ -349,6 +347,7 @@ class App extends React.Component {
     // Check for something to restore. If nothing, do nothing.
     if (this.state.previousPalettes.length === 0)
       return;
+
     // Get the most recent palette and remove from the stack.
     const prevPaletteIds = this.state.previousPalettes.pop();
 
@@ -356,8 +355,10 @@ class App extends React.Component {
     const gridColorIds = this.getColorIdsFromGrid();
     // Prepend personal palette to grid ids
     const allColorIds = this.state.palettes["personal"].colorIds.concat(gridColorIds);
+
     // Must also remove previous palette colors from grid as we are restoring it.
     this.removeColorsFromArray(prevPaletteIds, allColorIds);
+
     var newState = { ...this.state };
     newState = this.refillRows(newState, allColorIds);
 

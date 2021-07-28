@@ -1,5 +1,5 @@
 import { round } from "mathjs";
-import { matchPaletteColors } from "./match-palette.js";
+import { expandPaletteColors } from "./match-palette.js";
 
 function getOpposite (index, nColors) {
   let opposite = round(index + 0.5 * nColors);
@@ -13,8 +13,13 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
   // First sort hueChromaArray by hue. Add the start ones to the array first.
 
   const allHueChromas = hueChromaArray.concat(startHueChroma);
-  allHueChromas.sort((a,b) => b.hue - a.hue);
+  // Some hues are the same. Make sure we always start with the same array.
+  allHueChromas.sort((a,b)=>b.hue - a.hue);
 
+  // const hcIds = allHueChromas.map(hc => hc.colorId);
+  // for (let i = 0; i < hcIds.length; i++)
+  //   console.log(allHueChromas[i].colorId,allHueChromas[i].hue);
+    
   // Find where the start colors are in the hue order.
   // This is called when there are two colors in the personal palette. If one is gray then there's only one start color.
 
@@ -23,32 +28,26 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
 
   const n_HCs = allHueChromas.length;
 
-  let newHueChromas = [];
+  let startInds = [];
 
   if (nToAdd === 1) {
     let average = round(0.5 * (index0 + index1));
     // This will be split complementary scheme with inputs being the split.
     // If inputs are separated by more than n_HC/2, the complement is the average.
     // Otherwise the complement is the opposite of the average.
-    if (Math.abs(index0 - index1) < n_HCs / 2)
+    if (Math.abs(index0 - index1) < n_HCs / 2) {
       average = getOpposite(average, n_HCs);
-    newHueChromas = [
-      startHueChroma[0],
-      allHueChromas[average],
-      startHueChroma[1]
-    ];
+    }
+    startInds = [index0, average, index1];
   } else {
     // Draw the output in the order of new color that is next to 0 (opposite of 1),
     // color 0, color 1, new color that is next to 1 (opposite of 0).
-    newHueChromas = [
-      allHueChromas[getOpposite(index1, n_HCs)],
-      startHueChroma[0],
-      startHueChroma[1],
-      allHueChromas[getOpposite(index0, n_HCs)]
-    ];
+    const opposite0 = getOpposite(index0, n_HCs);
+    const opposite1 = getOpposite(index1, n_HCs);
+    startInds = [opposite1, index0, index1, opposite0];
   }
 
-  return matchPaletteColors(3, newHueChromas, hueChromaArray, colors);
+  return expandPaletteColors(3, startInds, allHueChromas, colors);
 }
 
 export default addPaletteColors;
