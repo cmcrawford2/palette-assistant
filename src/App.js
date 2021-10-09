@@ -431,6 +431,8 @@ class App extends React.Component {
     // Disable going back, because old palettes might have HTML colors in them.
     newState.prevPalettes = [];
 
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
+
     this.setState(newState);
   }
 
@@ -448,6 +450,7 @@ class App extends React.Component {
     newState.palettes['personal'].colorIds = [];
     // Disable going back, because old palettes might have random colors in them.
     newState.prevPalettes = [];
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
 
     this.setState(newState);
   }
@@ -466,6 +469,7 @@ class App extends React.Component {
     newState.palettes['personal'].colorIds = [];
     // Disable going back, because old palettes might have random colors in them.
     newState.prevPalettes = [];
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
 
     this.setState(newState);
   }
@@ -516,6 +520,8 @@ class App extends React.Component {
     var sortedIds = sortByGroup(this.state.colors, colorIds, this.compareWeighted);
     var newState = { ...this.state };
     newState = this.refillRows(newState, sortedIds);
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
+
     this.setState(newState);
   }
 
@@ -524,6 +530,8 @@ class App extends React.Component {
     colorIds.sort(this.compareWeighted);
     var newState = { ...this.state };
     newState = this.refillRows(newState, colorIds);
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
+
     this.setState(newState);
   }
   
@@ -532,6 +540,8 @@ class App extends React.Component {
     colorIds.sort(this.compareHue);
     var newState = { ...this.state };
     newState = this.refillRows(newState, colorIds);
+    newState.gridDropdownOn = 1 - newState.gridDropdownOn;
+
     this.setState(newState);
   }
   
