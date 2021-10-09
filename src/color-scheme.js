@@ -140,7 +140,7 @@ function getColorScheme (startHueChroma, hueChromaArray, colors, how) {
       newPalette.push(startColors[2*ri].colorId);
     }
     // Make sure start is in the output.
-    if (newPalette.indexOf(startHueChroma.colorId === -1)) {
+    if (newPalette.indexOf(startHueChroma.colorId) === -1) {
       // Have to replace according to hue, so don't call replaceNearestNeighbor.
       let minDist, minIndex;
       for (ri = 0; ri < 12; ri++) {
