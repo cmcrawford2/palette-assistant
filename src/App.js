@@ -5,6 +5,7 @@ import Palette from './palette.js'
 import { getGrays, getColorScheme } from './color-scheme.js'
 import { matchPaletteColors } from './match-palette.js'
 import addPaletteColors from './add-to-palette.js'
+import averagePaletteColors from './average-palette.js'
 import { getWeights, sortRGB, sortCMYK, sort6, isGray, RGBtoHex, RGBtoHueChroma } from './sort-colors.js'
 import "./style.css";
 
@@ -315,6 +316,30 @@ class App extends React.Component {
     this.updateWithNewScheme(colorSchemeIdArray);
   }
 
+  averageColors = () => {
+    // This function assumes two inputs, not gray, with one or two colors added.
+    // console.table(this.state.palettes['personal']);
+    if ((this.state.palettes['personal'].colorIds.length) !== 2)
+      return;
+    const id1 = this.state.palettes['personal'].colorIds[0];
+    const id2 = this.state.palettes['personal'].colorIds[1];
+    const color1 = this.state.colors[id1];
+    const color2 = this.state.colors[id2];
+    // Nothing to compute if one or both colors are gray.
+    if (isGray(color1) || isGray(color2))
+      return this.matchColors();
+
+    let colorSchemeIdArray = [];
+    var colorIdArray = this.getColorIdsFromGrid();
+    // Get hue+chroma for start colors
+    const startHueChroma = [RGBtoHueChroma(color1), RGBtoHueChroma(color2)];
+    // Get hue+chroma from the big grid
+    const allColors = colorIdArray.filter(color_id => !isGray(this.state.colors[color_id]));
+    const hueChromaArray = allColors.map(color_id => RGBtoHueChroma(this.state.colors[color_id]));
+    colorSchemeIdArray = averagePaletteColors(startHueChroma, hueChromaArray, this.state.colors);
+    this.updateWithNewScheme(colorSchemeIdArray);
+  }
+
   updateWithNewScheme = (newPersonalPaletteIds) => {
     // Remove color scheme colors from the grid rows and put them in the personal palette.
     var gridColorIds = this.getColorIdsFromGrid();
@@ -613,6 +638,9 @@ class App extends React.Component {
                 </button>
                 <button className="SortButton" onClick={() => {this.addColors(1)}}>
                   Add One Color
+                </button>
+                <button className="SortButton" onClick={() => {this.averageColors()}}>
+                  Average Colors
                 </button>
                 <button className="SortButton" onClick={() => {this.addColors(2)}}>
                   Add Two Colors
