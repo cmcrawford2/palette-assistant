@@ -1,7 +1,7 @@
 import { round } from "mathjs";
 import { expandPaletteColors } from "./match-palette.js";
 
-function getOpposite (index, nColors) {
+function getOpposite(index, nColors) {
   let opposite = round(index + 0.5 * nColors);
   if (opposite >= nColors) opposite -= nColors;
   return opposite;
@@ -14,12 +14,12 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
 
   const allHueChromas = hueChromaArray.concat(startHueChroma);
   // Some hues are the same. Make sure we always start with the same array.
-  allHueChromas.sort((a,b)=>b.hue - a.hue);
+  allHueChromas.sort((a, b) => b.hue - a.hue);
 
   // const hcIds = allHueChromas.map(hc => hc.colorId);
   // for (let i = 0; i < hcIds.length; i++)
   //   console.log(allHueChromas[i].colorId,allHueChromas[i].hue);
-    
+
   // Find where the start colors are in the hue order.
   // This is called when there are two colors in the personal palette. If one is gray then there's only one start color.
 
@@ -39,12 +39,17 @@ function addPaletteColors(nToAdd, startHueChroma, hueChromaArray, colors) {
       average = getOpposite(average, n_HCs);
     }
     startInds = [index0, average, index1];
-  } else {
+  } else if (Math.abs(index0 - index1) < n_HCs / 3) {
     // Draw the output in the order of new color that is next to 0 (opposite of 1),
     // color 0, color 1, new color that is next to 1 (opposite of 0).
     const opposite0 = getOpposite(index0, n_HCs);
     const opposite1 = getOpposite(index1, n_HCs);
     startInds = [opposite1, index0, index1, opposite0];
+  } else {
+    // We don't want opposites to be too close to imput colors.
+    const midPoint = round(0.5 * (index0 + index1));
+    const oppPoint = getOpposite(midPoint, n_HCs);
+    startInds = [index0, midPoint, index1, oppPoint];
   }
 
   return expandPaletteColors(3, startInds, allHueChromas, colors);
