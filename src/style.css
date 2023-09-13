@@ -2,7 +2,7 @@
   font-family: /*'Montserrat',*/ sans-serif;
   text-align: center;
   padding-top: 10px;
-  background-color: #fffbb0;
+  background-color: #d0e7ff;
   padding-bottom: 25px;
   font-size: calc(10px + 1.5vmin);
 }
@@ -27,7 +27,10 @@
   margin: 0;
 }
 
-.App h1, h2, h3, a {
+.App h1,
+h2,
+h3,
+a {
   font-family: "Crimson Text", serif;
   color: #221133;
 }
@@ -48,7 +51,8 @@
   min-width: 240px;
 }
 
-.DropName, .DropItem {
+.DropName,
+.DropItem {
   height: 40px;
   font-size: 18px;
   /* font-family: "Crimson Text", serif; */
@@ -142,7 +146,7 @@
     margin: 5px;
   }
   .DropdownContent {
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
   }
 }
