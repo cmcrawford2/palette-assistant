@@ -660,9 +660,14 @@ class App extends React.Component {
               the palette.
             </h3>
             <h3>
-              When there are one, two or three colors in the palette, you can
-              expand the palette.
+              When there is one color in the palette, you can choose various
+              color schemes.
             </h3>
+            <h3>
+              With two colors, you can add one or two colors or find the
+              average.
+            </h3>
+            <h3>With up to six colors, you can expand the palette.</h3>
             <h3>Copy the palette to the clipboard to save it.</h3>
           </div>
         </header>
@@ -809,15 +814,6 @@ class App extends React.Component {
                 </button>
               </div>
             )}
-            <div className="SortDescriptionContainer">
-              <div className="SortDescription">
-                <h3>
-                  Sorted colors are grouped by hue and sorted by perceived
-                  lightness.
-                </h3>
-                {/* <h3>Perceived lightness is computed as 0.299 red + 0.587 green + 0.114 blue.</h3> */}
-              </div>
-            </div>
             <div className="DropdownWrapper">
               <button className="DropName" onClick={this.toggleGridDropdown}>
                 Grid options
@@ -826,15 +822,6 @@ class App extends React.Component {
                 className="DropdownContent"
                 style={{ display: this.state.gridDropdownOn ? "flex" : "none" }}
               >
-                <button className="DropItem" onClick={this.resetHTML}>
-                  Reset Grid: HTML colors
-                </button>
-                <button className="DropItem" onClick={this.randomSet}>
-                  Reset Grid: Randomly
-                </button>
-                <button className="DropItem" onClick={this.resetCrayola}>
-                  Reset Grid: Crayola
-                </button>
                 <button className="DropItem" onClick={this.sortByHue}>
                   Sort by Hue
                 </button>
@@ -852,6 +839,15 @@ class App extends React.Component {
                 </button>
                 <button className="DropItem" onClick={() => this.sort(sort6)}>
                   Six colors
+                </button>
+                <button className="DropItem" onClick={this.resetHTML}>
+                  Reset Grid: HTML colors
+                </button>
+                <button className="DropItem" onClick={this.randomSet}>
+                  Reset Grid: Randomly
+                </button>
+                <button className="DropItem" onClick={this.resetCrayola}>
+                  Reset Grid: Crayola
                 </button>
               </div>
             </div>
