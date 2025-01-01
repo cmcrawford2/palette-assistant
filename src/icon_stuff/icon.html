@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3x3 Color Grid</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 50px);
+        grid-template-rows: repeat(3, 50px);
+        gap: 5px; /* White space between squares */
+      }
+      .grid div {
+        width: 50px;
+        height: 50px;
+      }
+      .color1 {
+        background-color: #ff5733;
+      }
+      .color2 {
+        background-color: #33c4ff;
+      }
+      .color3 {
+        background-color: #aadd33;
+      }
+      .color4 {
+        background-color: #ff33a6;
+      }
+      .color5 {
+        background-color: #ffc133;
+      }
+      .color6 {
+        background-color: #a633ff;
+      }
+      .color7 {
+        background-color: #00ddba;
+      }
+      .color8 {
+        background-color: #3383ff;
+      }
+      .color9 {
+        background-color: #ff8333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid">
+      <div class="color1"></div>
+      <div class="color2"></div>
+      <div class="color3"></div>
+      <div class="color4"></div>
+      <div class="color5"></div>
+      <div class="color6"></div>
+      <div class="color7"></div>
+      <div class="color8"></div>
+      <div class="color9"></div>
+    </div>
+  </body>
+</html>
