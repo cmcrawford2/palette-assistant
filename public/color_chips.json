@@ -1,0 +1,652 @@
+[
+    {
+        "product_number": "PR114",
+        "color_name": "Ivory",
+        "hex_code": "#FAF6BB"
+    },
+    {
+        "product_number": "PR97",
+        "color_name": "Citrus Yellow",
+        "hex_code": "#F7FC65"
+    },
+    {
+        "product_number": "PR1",
+        "color_name": "Lemon Yellow",
+        "hex_code": "#F3FC3F"
+    },
+    {
+        "product_number": "PR2",
+        "color_name": "Bright Yellow",
+        "hex_code": "#FDF109"
+    },
+    {
+        "product_number": "PR3A",
+        "color_name": "Clear Yellow",
+        "hex_code": "#FBEB3F"
+    },
+    {
+        "product_number": "PR3",
+        "color_name": "Golden Yellow",
+        "hex_code": "#FFDF29"
+    },
+    {
+        "product_number": "PR165",
+        "color_name": "Daffodil",
+        "hex_code": "#ffd900"
+    },
+    {
+        "product_number": "PR67",
+        "color_name": "Marigold",
+        "hex_code": "#E6C746"
+    },
+    {
+        "product_number": "PR4",
+        "color_name": "Deep Yellow",
+        "hex_code": "#FFC617"
+    },
+    {
+        "product_number": "PR5",
+        "color_name": "Soft Orange",
+        "hex_code": "#FF9B0B"
+    },
+    {
+        "product_number": "PR6",
+        "color_name": "Deep Orange",
+        "hex_code": "#FF7800"
+    },
+    {
+        "product_number": "PR167",
+        "color_name": "Orange Crush",
+        "hex_code": "#f47820"
+    },
+    {
+        "product_number": "PR166",
+        "color_name": "Watermelon",
+        "hex_code": "#f15751"
+    },
+    {
+        "product_number": "PR120",
+        "color_name": "Tangerine",
+        "hex_code": "#DC5435"
+    },
+    {
+        "product_number": "PR8A",
+        "color_name": "Pagoda Red",
+        "hex_code": "#CB5425"
+    },
+    {
+        "product_number": "PR45",
+        "color_name": "Jungle Red",
+        "hex_code": "#E83613"
+    },
+    {
+        "product_number": "PR10A",
+        "color_name": "Chinese Red",
+        "hex_code": "#E90606"
+    },
+    {
+        "product_number": "PR9",
+        "color_name": "Scarlet",
+        "hex_code": "#F90C0C"
+    },
+    {
+        "product_number": "PR10",
+        "color_name": "Fire Red",
+        "hex_code": "#C71021"
+    },
+    {
+        "product_number": "PR148",
+        "color_name": "Pomegranate",
+        "hex_code": "#bd2e37"
+    },
+    {
+        "product_number": "PR136",
+        "color_name": "Oxblood Red",
+        "hex_code": "#bd2035"
+    },
+    {
+        "product_number": "PR11A",
+        "color_name": "Rose Red",
+        "hex_code": "#F73C53"
+    },
+    {
+        "product_number": "PR14",
+        "color_name": "Coral Pink",
+        "hex_code": "#EF8A7A"
+    },
+    {
+        "product_number": "PR147",
+        "color_name": "Orange Sorbet",
+        "hex_code": "#ec8f4a"
+    },
+    {
+        "product_number": "PR7A",
+        "color_name": "Peach",
+        "hex_code": "#F8A881"
+    },
+    {
+        "product_number": "PR176",
+        "color_name": "Powder Pink",
+        "hex_code": "#ffcacb"
+    },
+    {
+        "product_number": "PR98",
+        "color_name": "Bubble Gum",
+        "hex_code": "#FABCC6"
+    },
+    {
+        "product_number": "PR12A",
+        "color_name": "Baby Pink",
+        "hex_code": "#F2A1B6"
+    },
+    {
+        "product_number": "PR14A",
+        "color_name": "Hot Pink",
+        "hex_code": "#FF72BB"
+    },
+    {
+        "product_number": "PR49",
+        "color_name": "Red Wine",
+        "hex_code": "#A51944"
+    },
+    {
+        "product_number": "PR163",
+        "color_name": "Cardinal Red",
+        "hex_code": "#a22b30"
+    },
+    {
+        "product_number": "PR152",
+        "color_name": "Dragon Fruit",
+        "hex_code": "#d53e7b"
+    },
+    {
+        "product_number": "PR17",
+        "color_name": "Burgundy",
+        "hex_code": "#8A0233"
+    },
+    {
+        "product_number": "PR181",
+        "color_name": "Hot Hibiscus",
+        "hex_code": "#ce3175"
+    },
+    {
+        "product_number": "PR12",
+        "color_name": "Light Red",
+        "hex_code": "#D10062"
+    },
+    {
+        "product_number": "PR13",
+        "color_name": "Fuchsia Red",
+        "hex_code": "#AD1B53"
+    },
+    {
+        "product_number": "PR145",
+        "color_name": "Dances With Raisins",
+        "hex_code": "#822a43"
+    },
+    {
+        "product_number": "PR16",
+        "color_name": "Maroon",
+        "hex_code": "#6C032F"
+    },
+    {
+        "product_number": "PR111",
+        "color_name": "Black Cherry",
+        "hex_code": "#632445"
+    },
+    {
+        "product_number": "PR115",
+        "color_name": "Eggplant",
+        "hex_code": "#4F2E3C"
+    },
+    {
+        "product_number": "PR187",
+        "color_name": "Sweet Pea",
+        "hex_code": "#EFBAD3"
+    },
+    {
+        "product_number": "PR174",
+        "color_name": "Peony",
+        "hex_code": "#e4a8c4"
+    },
+    {
+        "product_number": "PR51",
+        "color_name": "Plum Blossom",
+        "hex_code": "#C48EB6"
+    },
+    {
+        "product_number": "PR169",
+        "color_name": "Razzle Dazzle",
+        "hex_code": "#b13277"
+    },
+    {
+        "product_number": "PR65",
+        "color_name": "Raspberry",
+        "hex_code": "#9C0468"
+    },
+    {
+        "product_number": "PR15",
+        "color_name": "Amethyst",
+        "hex_code": "#8B0E59"
+    },
+    {
+        "product_number": "PR64",
+        "color_name": "Orchid",
+        "hex_code": "#98539F"
+    },
+    {
+        "product_number": "PR119",
+        "color_name": "Red Violet",
+        "hex_code": "#862387"
+    },
+    {
+        "product_number": "PR43",
+        "color_name": "Blue Violet",
+        "hex_code": "#7E2494"
+    },
+    {
+        "product_number": "PR19",
+        "color_name": "Plum",
+        "hex_code": "#65246C"
+    },
+    {
+        "product_number": "PR18",
+        "color_name": "Deep Purple",
+        "hex_code": "#5D2371"
+    },
+    {
+        "product_number": "PR161",
+        "color_name": "Power Berry",
+        "hex_code": "#461e59"
+    },
+    {
+        "product_number": "PR131",
+        "color_name": "Imperial Purple",
+        "hex_code": "#310043"
+    },
+    {
+        "product_number": "PR18A",
+        "color_name": "Ultra Violet",
+        "hex_code": "#5E377A"
+    },
+    {
+        "product_number": "PR117",
+        "color_name": "Grape",
+        "hex_code": "#5D1A87"
+    },
+    {
+        "product_number": "PR19A",
+        "color_name": "Lilac",
+        "hex_code": "#7855A3"
+    },
+    {
+        "product_number": "PR60",
+        "color_name": "Lavender",
+        "hex_code": "#AB93C8"
+    },
+    {
+        "product_number": "PR185",
+        "color_name": "Nightshade",
+        "hex_code": "#55437D"
+    },
+    {
+        "product_number": "PR159",
+        "color_name": "Hydrangea",
+        "hex_code": "#9989b0"
+    },
+    {
+        "product_number": "PR83",
+        "color_name": "Wisteria",
+        "hex_code": "#C8BFDB"
+    },
+    {
+        "product_number": "PR61",
+        "color_name": "Ice Blue",
+        "hex_code": "#B5B4DA"
+    },
+    {
+        "product_number": "PR27",
+        "color_name": "Midnight Blue",
+        "hex_code": "#3E4276"
+    },
+    {
+        "product_number": "PR130",
+        "color_name": "Strong Navy",
+        "hex_code": "#1b215f"
+    },
+    {
+        "product_number": "PR24",
+        "color_name": "Navy Blue",
+        "hex_code": "#2D2C64"
+    },
+    {
+        "product_number": "PR173",
+        "color_name": "Deep Space",
+        "hex_code": "#002357"
+    },
+    {
+        "product_number": "PR186",
+        "color_name": "Nebula Navy",
+        "hex_code": "#002735"
+    },
+    {
+        "product_number": "PR168",
+        "color_name": "Indigo Blue",
+        "hex_code": "#1b4f73"
+    },
+    {
+        "product_number": "PR112",
+        "color_name": "Periwinkle",
+        "hex_code": "#686EA8"
+    },
+    {
+        "product_number": "PR26",
+        "color_name": "Sky Blue",
+        "hex_code": "#7298D6"
+    },
+    {
+        "product_number": "PR62",
+        "color_name": "Peacock Blue",
+        "hex_code": "#2A7FC1"
+    },
+    {
+        "product_number": "PR188",
+        "color_name": "Bluebird",
+        "hex_code": "#3769a0"
+    },
+    {
+        "product_number": "PR77",
+        "color_name": "Alpine Blue",
+        "hex_code": "#649ECA"
+    },
+    {
+        "product_number": "PR76",
+        "color_name": "Wedgewood Blue",
+        "hex_code": "#8BABC0"
+    },
+    {
+        "product_number": "PR80",
+        "color_name": "Robin's Egg Blue",
+        "hex_code": "#82E4ED"
+    },
+    {
+        "product_number": "PR25",
+        "color_name": "Turquoise",
+        "hex_code": "#18AFDB"
+    },
+    {
+        "product_number": "PR21",
+        "color_name": "Teal Blue",
+        "hex_code": "#225E7D"
+    },
+    {
+        "product_number": "PR22",
+        "color_name": "Cobalt Blue",
+        "hex_code": "#0A3856"
+    },
+    {
+        "product_number": "PR151",
+        "color_name": "Parakeet",
+        "hex_code": "#81c5bd"
+    },
+    {
+        "product_number": "PR50",
+        "color_name": "Jade Green",
+        "hex_code": "#38C5BC"
+    },
+    {
+        "product_number": "PR108",
+        "color_name": "Cayman Isle Green",
+        "hex_code": "#4CBEAC"
+    },
+    {
+        "product_number": "PR164",
+        "color_name": "Sea Glass",
+        "hex_code": "#9bd4b5"
+    },
+    {
+        "product_number": "PR157",
+        "color_name": "Celadon",
+        "hex_code": "#97c5ae"
+    },
+    {
+        "product_number": "PR28B",
+        "color_name": "Better Blue Green",
+        "hex_code": "#046653"
+    },
+    {
+        "product_number": "PR31A",
+        "color_name": "Forest Green",
+        "hex_code": "#206F4F"
+    },
+    {
+        "product_number": "PR31",
+        "color_name": "Dark Green",
+        "hex_code": "#366347"
+    },
+    {
+        "product_number": "PR134",
+        "color_name": "Moss Green",
+        "hex_code": "#394b22"
+    },
+    {
+        "product_number": "PR140",
+        "color_name": "Sage Green",
+        "hex_code": "#97b198"
+    },
+    {
+        "product_number": "PR170",
+        "color_name": "Muir Green",
+        "hex_code": "#6d795d"
+    },
+    {
+        "product_number": "PR32",
+        "color_name": "Olive Drab",
+        "hex_code": "#597053"
+    },
+    {
+        "product_number": "PR30A",
+        "color_name": "New Emerald Green",
+        "hex_code": "#179254"
+    },
+    {
+        "product_number": "PR33",
+        "color_name": "Avocado",
+        "hex_code": "#498624"
+    },
+    {
+        "product_number": "PR177",
+        "color_name": "Electric Green",
+        "hex_code": "#77c14a"
+    },
+    {
+        "product_number": "PR66",
+        "color_name": "Kelly Green",
+        "hex_code": "#32C45B"
+    },
+    {
+        "product_number": "PR29",
+        "color_name": "Bright Green",
+        "hex_code": "#53E953"
+    },
+    {
+        "product_number": "PR183",
+        "color_name": "Lime Pop",
+        "hex_code": "#C0D725"
+    },
+    {
+        "product_number": "PR47",
+        "color_name": "Chartreuse",
+        "hex_code": "#C0D848"
+    },
+    {
+        "product_number": "PR158",
+        "color_name": "Granny Apple",
+        "hex_code": "#a2c460"
+    },
+    {
+        "product_number": "PR149",
+        "color_name": "Lime Squeeze",
+        "hex_code": "#a5bc46"
+    },
+    {
+        "product_number": "PR143",
+        "color_name": "Wasabi",
+        "hex_code": "#b2c371"
+    },
+    {
+        "product_number": "PR182",
+        "color_name": "Herbaceous",
+        "hex_code": "#9EA15C"
+    },
+    {
+        "product_number": "PR37",
+        "color_name": "Bronze",
+        "hex_code": "#8F882A"
+    },
+    {
+        "product_number": "PR38",
+        "color_name": "Khaki",
+        "hex_code": "#6E622A"
+    },
+    {
+        "product_number": "PR116",
+        "color_name": "Brazilnut",
+        "hex_code": "#615240"
+    },
+    {
+        "product_number": "PR135",
+        "color_name": "Truffle Brown",
+        "hex_code": "#3e2f2e"
+    },
+    {
+        "product_number": "PR142",
+        "color_name": "Dutch Chocolate",
+        "hex_code": "#69483d"
+    },
+    {
+        "product_number": "PR35",
+        "color_name": "Dark Brown",
+        "hex_code": "#603B23"
+    },
+    {
+        "product_number": "PR35A",
+        "color_name": "Chocolate Brown",
+        "hex_code": "#66382B"
+    },
+    {
+        "product_number": "PR34",
+        "color_name": "Rust Brown",
+        "hex_code": "#995648"
+    },
+    {
+        "product_number": "PR141",
+        "color_name": "Terracotta",
+        "hex_code": "#b76550"
+    },
+    {
+        "product_number": "PR178",
+        "color_name": "Shiitake Mushroom",
+        "hex_code": "#ac8e83"
+    },
+    {
+        "product_number": "PR144",
+        "color_name": "Chamois",
+        "hex_code": "#e7bd8c"
+    },
+    {
+        "product_number": "PR113",
+        "color_name": "Golden Brown",
+        "hex_code": "#b17c35"
+    },
+    {
+        "product_number": "PR155",
+        "color_name": "Amber Waves",
+        "hex_code": "#dfaf49"
+    },
+    {
+        "product_number": "PR138",
+        "color_name": "Palomino Gold",
+        "hex_code": "#dfc871"
+    },
+    {
+        "product_number": "PR101",
+        "color_name": "Camel",
+        "hex_code": "#CBB778"
+    },
+    {
+        "product_number": "PR6A",
+        "color_name": "Ecru",
+        "hex_code": "#E0D6BA"
+    },
+    {
+        "product_number": "PR139",
+        "color_name": "Mist Gray",
+        "hex_code": "#dddddc"
+    },
+    {
+        "product_number": "PR38A",
+        "color_name": "Blue Gray",
+        "hex_code": "#B7BAC9"
+    },
+    {
+        "product_number": "PR184",
+        "color_name": "Silver Lining",
+        "hex_code": "#BFC0C3"
+    },
+    {
+        "product_number": "PR175",
+        "color_name": "Neutral Grey",
+        "hex_code": "#9ba1aa"
+    },
+    {
+        "product_number": "PR172",
+        "color_name": "Timber Wolf",
+        "hex_code": "#74848b"
+    },
+    {
+        "product_number": "PR105",
+        "color_name": "Pewter",
+        "hex_code": "#818F83"
+    },
+    {
+        "product_number": "PR154",
+        "color_name": "Brushed Steel",
+        "hex_code": "#8a8a8c"
+    },
+    {
+        "product_number": "PR41",
+        "color_name": "Charcoal Gray",
+        "hex_code": "#787A78"
+    },
+    {
+        "product_number": "PR150",
+        "color_name": "Gun Metal Gray",
+        "hex_code": "#545852"
+    },
+    {
+        "product_number": "PR200",
+        "color_name": "Raven Black",
+        "hex_code": "#000000"
+    },
+    {
+        "product_number": "PR44",
+        "color_name": "Better Black",
+        "hex_code": "#261835"
+    },
+    {
+        "product_number": "PR300",
+        "color_name": "New Black",
+        "hex_code": "#260626"
+    },
+    {
+        "product_number": "PR275",
+        "color_name": "Hot Black",
+        "hex_code": "#241f1f"
+    },
+    {
+        "product_number": "PR250",
+        "color_name": "Jet Black",
+        "hex_code": "#211E1E"
+    }
+]

@@ -206,10 +206,13 @@ class App extends React.Component {
         ? 1
         : newState.colorMode === "random"
         ? 201
-        : 301;
+        : newState.colorMode === "Crayola"
+        ? 301
+        : 401; // colorMode === "dharma"
 
     for (var i = 0; i < n_p; i++) {
       var colorSection = newColorIds.slice(10 * i, 10 * (i + 1));
+
       var paletteId = "p" + (i + offset).toString();
       var newPalette = {
         ...newState.palettes[paletteId],
@@ -419,7 +422,7 @@ class App extends React.Component {
       colorIds: newPersonalPaletteIds,
     };
 
-    // Final new state has the diminshed rows and filled personal palette.
+    // Final new state has the diminished rows and filled personal palette.
     var newState = {
       ...newRowsState,
       palettes: {
@@ -469,7 +472,6 @@ class App extends React.Component {
     // Prepend personal palette to grid ids
     const allColorIds =
       this.state.palettes["personal"].colorIds.concat(gridColorIds);
-    // console.log(allColorIds);
     var newState = { ...this.state };
     var newPalette = {
       ...newState.palettes["personal"],
@@ -518,7 +520,7 @@ class App extends React.Component {
     newState.palettes["personal"].colorIds = [];
 
     // Disable going back, because old palettes might have HTML colors in them.
-    newState.prevPalettes = [];
+    newState.previousPalettes = [];
 
     newState.gridDropdownOn = 1 - newState.gridDropdownOn;
 
@@ -538,10 +540,66 @@ class App extends React.Component {
     // Reset the personal palette to be empty.
     newState.palettes["personal"].colorIds = [];
     // Disable going back, because old palettes might have random colors in them.
-    newState.prevPalettes = [];
+    newState.previousPalettes = [];
     newState.gridDropdownOn = 1 - newState.gridDropdownOn;
 
     this.setState(newState);
+  };
+
+  // Generate dharma colors
+  // TODO: add user defined colors to this palette (and others in general). (Later)
+  resetDharma = () => {
+    // This function makes a new grid of dharma colors.
+    // We need to fetch the dharma colors from the json file.
+    // We need to initialize arrays and stuff them dynamically.
+    fetch("/color_chips.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((dharmaColorsRaw) => {
+        // Initialize colors object if not already present
+        const colors = { ...this.state.colors }; // Colors are not in state, we must read them.
+        const dharmaPalette = [];
+
+        // Starting index for new colors
+        let colorIndex = 401;
+
+        // Helper function to convert hex to RGB
+        const hexToRgb = (hex) => {
+          const bigint = parseInt(hex.slice(1), 16);
+          return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        };
+
+        // Map the Dharma colors into the 'colors' object
+        dharmaColorsRaw.forEach((color) => {
+          const rgb = hexToRgb(color.hex_code); // Assuming the JSON file has a 'hex' property
+          colors[`color-${colorIndex}`] = {
+            id: `color-${colorIndex}`,
+            color: [color.color_name, ...rgb], // Assuming the JSON file has a 'name' property
+          };
+          dharmaPalette.push(`color-${colorIndex}`);
+          colorIndex++;
+        });
+
+        // Make a copy of state that we will modify directly.
+        var newState = { ...this.state };
+        newState.colorMode = "dharma";
+        newState.colors = colors;
+        newState.palettes.dharma.colorIds = dharmaPalette;
+        // Refill the rows and the row palette id lists.
+        // We get a new newState.
+        newState = this.refillRows(newState, dharmaPalette);
+        // Reset the personal palette to be empty.
+        newState.palettes["personal"].colorIds = [];
+        // Disable going back, because old palettes might have HTML colors in them.
+        newState.previousPalettes = [];
+        newState.gridDropdownOn = 1 - newState.gridDropdownOn;
+
+        this.setState(newState);
+      });
   };
 
   // Restore the named colors in alphabetical order
@@ -557,7 +615,7 @@ class App extends React.Component {
     // Reset the personal palette to be empty.
     newState.palettes["personal"].colorIds = [];
     // Disable going back, because old palettes might have random colors in them.
-    newState.prevPalettes = [];
+    newState.previousPalettes = [];
     newState.gridDropdownOn = 1 - newState.gridDropdownOn;
 
     this.setState(newState);
@@ -848,6 +906,9 @@ class App extends React.Component {
                 </button>
                 <button className="DropItem" onClick={this.resetCrayola}>
                   Reset Grid: Crayola
+                </button>
+                <button className="DropItem" onClick={this.resetDharma}>
+                  Reset Grid: Dharma
                 </button>
               </div>
             </div>

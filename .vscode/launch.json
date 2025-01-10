@@ -18,6 +18,24 @@
       "name": "Launch Chrome against localhost",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch React App",
+      "program": "${workspaceFolder}/node_modules/react-scripts/scripts/start.js",
+      "cwd": "${workspaceFolder}",
+      "protocol": "inspector",
+      "console": "integratedTerminal"
+    },
+
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Attach to Frontend",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/src"
     }
   ]
 }
